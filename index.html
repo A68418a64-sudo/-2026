@@ -22,14 +22,18 @@
         /* 抽獎頁：開始抽獎按鈕區 */
         #draw-trigger { position: absolute; width: 35%; height: 12%; top: 76%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99; display: none; }
 
-        /* 🛡️ 明確的系統設定按鈕 (放在右上方，避開底部所有干擾) */
+        /* 🛡️ 回歸原位：系統設定點擊區 (特別加高感應範圍) */
         #admin-trigger {
-            position: absolute; top: 20px; right: 20px; 
-            padding: 10px 20px; background: rgba(252, 205, 77, 0.8); 
-            color: #000; border-radius: 30px; font-weight: bold; font-size: 18px;
-            cursor: pointer; z-index: 1000; display: none;
-            box-shadow: 0 0 15px rgba(252, 205, 77, 0.5);
-            border: 2px solid #fff;
+            position: absolute; 
+            width: 40%; 
+            height: 15%; /* 加高感應區，確保即使底部被擋住，點文字上方也能開 */
+            bottom: 2%;  /* 稍微離開邊緣避開 iPad 滑動條 */
+            left: 50%;
+            transform: translateX(-50%); 
+            cursor: pointer; 
+            z-index: 1000; 
+            display: none;
+            /* background: rgba(255,0,0,0.1); // 若仍點不到，可取消此行註解確認紅色感應範圍 */
         }
 
         #roll-text {
@@ -60,7 +64,7 @@
         <div id="roll-text"></div>
         <div id="draw-trigger" onclick="toggleDraw()"></div>
         
-        <div id="admin-trigger" onclick="showAdmin()">⚙️ 系統設定</div>
+        <div id="admin-trigger" onclick="showAdmin()"></div>
 
         <div id="winner-ui" onclick="reset()">
             <div style="color:#fccd4d; font-size:35px; letter-spacing:10px; margin-bottom:25px;">恭喜獲得</div>
@@ -70,14 +74,14 @@
     </div>
 
     <div id="admin-panel">
-        <h2 style="color:#fccd4d; margin-top:0;">亞護開發：抽獎名單設定</h2>
-        <p>1. 請輸入或貼上名單 (一人一行)：</p>
+        <h2 style="color:#fccd4d; margin-top:0;">亞護開發：抽獎設定</h2>
+        <p>1. 請輸入名單 (一人一行)：</p>
         <textarea id="admin-names" class="admin-input" rows="10" placeholder="王小明&#10;李大華..."></textarea>
         <div style="display:flex; gap:20px;">
-            <div style="flex:1;">抽獎次數：<input type="number" id="admin-total" class="admin-input" value="100"></div>
-            <div style="flex:1;">每次抽出：<input type="number" id="admin-per" class="admin-input" value="1"></div>
+            <div style="flex:1;">總抽獎次數：<input type="number" id="admin-total" class="admin-input" value="100"></div>
+            <div style="flex:1;">每次抽出人數：<input type="number" id="admin-per" class="admin-input" value="1"></div>
         </div>
-        <center><button class="save-btn" onclick="hideAdmin()">儲存設定並關閉</button></center>
+        <center><button class="save-btn" onclick="hideAdmin()">儲存並關閉</button></center>
     </div>
 
     <audio id="mulan-audio" src="music.mp3.m4a"></audio>
@@ -95,7 +99,7 @@
             config.totalDraws = parseInt(document.getElementById('admin-total').value);
             config.perDraw = parseInt(document.getElementById('admin-per').value);
             document.getElementById('admin-panel').style.display = 'none';
-            alert("✅ 設定已更新！目前名單人數：" + config.names.length);
+            alert("✅ 設定儲存成功！名單共 " + config.names.length + " 人");
         }
 
         function goToReady() {
@@ -108,7 +112,7 @@
         }
 
         function toggleDraw() {
-            if (config.names.length === 0 && !rolling) { alert("⚠️ 請點擊右上角『系統設定』輸入名單！"); return; }
+            if (config.names.length === 0 && !rolling) { alert("⚠️ 請先點擊下方的『系統設定』輸入同仁名單！"); return; }
             if (!rolling) {
                 rolling = true; 
                 timer = setInterval(() => {
