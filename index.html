@@ -16,54 +16,46 @@
         }
         .ready-mode { background-image: url('ready.jpg.PNG') !important; }
 
-        /* 封面：遊戲開始點擊區 */
-        #start-trigger { position: absolute; width: 45%; height: 18%; top: 59%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99; }
-
-        /* 抽獎頁：開始抽獎按鈕區 */
-        #draw-trigger { position: absolute; width: 35%; height: 12%; top: 76%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99; display: none; }
-
-        /* 🛡️ 回歸原位：系統設定點擊區 (特別加高感應範圍) */
-        #admin-trigger {
-            position: absolute; 
-            width: 40%; 
-            height: 15%; /* 加高感應區，確保即使底部被擋住，點文字上方也能開 */
-            bottom: 2%;  /* 稍微離開邊緣避開 iPad 滑動條 */
-            left: 50%;
-            transform: translateX(-50%); 
-            cursor: pointer; 
-            z-index: 1000; 
-            display: none;
-            /* background: rgba(255,0,0,0.1); // 若仍點不到，可取消此行註解確認紅色感應範圍 */
+        /* 標題文字區 */
+        #main-title {
+            position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%);
+            width: 100%; text-align: center; color: #fccd4d; font-weight: bold;
+            font-size: 45px; text-shadow: 0 0 20px rgba(0,0,0,0.8); z-index: 10; display: none;
         }
 
+        /* 滾動文字顯示區 (對準圖片中的 READY 框) */
         #roll-text {
-            position: absolute; top: 56%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 85px; font-weight: bold; color: #fff; text-shadow: 0 0 30px #fccd4d;
-            z-index: 5; display: none; width: 100%; text-align: center; pointer-events: none;
+            position: absolute; top: 71%; left: 50%; transform: translate(-50%, -50%);
+            font-weight: bold; color: #fff; text-shadow: 0 0 30px #fccd4d;
+            z-index: 5; display: none; width: 80%; text-align: center; pointer-events: none;
         }
+
+        #draw-trigger { position: absolute; width: 35%; height: 10%; top: 89%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99; display: none; }
+        #admin-trigger { position: absolute; width: 30%; height: 10%; bottom: 0%; left: 50%; transform: translateX(-50%); cursor: pointer; z-index: 99; display: none; }
 
         #winner-ui {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             z-index: 2000; display: none; flex-direction: column; align-items: center; justify-content: center;
             background: rgba(0,0,0,0.95);
         }
-        .winner-name { font-size: 110px; color: #fff; text-shadow: 0 0 50px #fccd4d; font-weight: bold; text-align: center; line-height: 1.2; }
+        .winner-name { color: #fff; text-shadow: 0 0 50px #fccd4d; font-weight: bold; text-align: center; line-height: 1.2; }
 
-        /* 設定面板介面 */
+        /* 設定面板 */
         #admin-panel {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.98); z-index: 9999; display: none; color: white; padding: 40px; box-sizing: border-box;
+            background: rgba(0,0,0,0.98); z-index: 9999; display: none; color: white; padding: 30px; box-sizing: border-box; overflow-y: auto;
         }
-        .admin-input { width: 100%; background: #222; color: #fff; border: 1px solid #444; padding: 15px; margin: 10px 0; font-size: 20px; border-radius: 12px; }
-        .save-btn { background: #fccd4d; color: #000; padding: 20px 60px; border: none; font-weight: bold; font-size: 24px; border-radius: 15px; cursor: pointer; margin-top: 30px; }
+        .admin-input { width: 100%; background: #222; color: #fff; border: 1px solid #444; padding: 12px; margin: 8px 0; font-size: 18px; border-radius: 10px; }
+        .save-btn { background: #fccd4d; color: #000; padding: 15px 50px; border: none; font-weight: bold; font-size: 22px; border-radius: 15px; cursor: pointer; margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="main-stage" id="stage">
-        <div id="start-trigger" onclick="goToReady()"></div>
-        <div id="roll-text"></div>
-        <div id="draw-trigger" onclick="toggleDraw()"></div>
+        <div id="start-trigger" style="position: absolute; width: 45%; height: 18%; top: 59%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99;" onclick="goToReady()"></div>
         
+        <div id="main-title">2026 亞護開發春酒抽獎</div>
+        <div id="roll-text"></div>
+        <div id="draw-trigger" onclick="startAutoDraw()"></div>
         <div id="admin-trigger" onclick="showAdmin()"></div>
 
         <div id="winner-ui" onclick="reset()">
@@ -74,13 +66,18 @@
     </div>
 
     <div id="admin-panel">
-        <h2 style="color:#fccd4d; margin-top:0;">亞護開發：抽獎設定</h2>
-        <p>1. 請輸入名單 (一人一行)：</p>
-        <textarea id="admin-names" class="admin-input" rows="10" placeholder="王小明&#10;李大華..."></textarea>
-        <div style="display:flex; gap:20px;">
-            <div style="flex:1;">總抽獎次數：<input type="number" id="admin-total" class="admin-input" value="100"></div>
-            <div style="flex:1;">每次抽出人數：<input type="number" id="admin-per" class="admin-input" value="1"></div>
+        <h2 style="color:#fccd4d; margin-top:0;">抽獎系統後台設定</h2>
+        <p>1. 修改主標題內容：</p>
+        <input type="text" id="admin-title-input" class="admin-input" value="2026 亞護開發春酒抽獎">
+        
+        <p>2. 名單設定 (一人一行)：</p>
+        <textarea id="admin-names" class="admin-input" rows="6" placeholder="王小明..."></textarea>
+        
+        <div style="display:flex; gap:15px; flex-wrap: wrap;">
+            <div style="flex:1; min-width: 150px;">每次抽出人數：<input type="number" id="admin-per" class="admin-input" value="1"></div>
+            <div style="flex:1; min-width: 150px;">名單字體大小：<input type="number" id="admin-font" class="admin-input" value="80"></div>
         </div>
+        
         <center><button class="save-btn" onclick="hideAdmin()">儲存並關閉</button></center>
     </div>
 
@@ -88,7 +85,7 @@
 
     <script>
         let rolling = false; let timer; 
-        let config = { names: [], totalDraws: 100, perDraw: 1 };
+        let config = { names: [], perDraw: 1, title: "2026 亞護開發春酒抽獎", fontSize: 80 };
         const audio = document.getElementById('mulan-audio');
 
         function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; }
@@ -96,33 +93,39 @@
         function hideAdmin() {
             const rawNames = document.getElementById('admin-names').value.split('\n').filter(n => n.trim() !== "");
             config.names = rawNames;
-            config.totalDraws = parseInt(document.getElementById('admin-total').value);
             config.perDraw = parseInt(document.getElementById('admin-per').value);
+            config.title = document.getElementById('admin-title-input').value;
+            config.fontSize = parseInt(document.getElementById('admin-font').value);
+            
+            // 即時更新標題與字體
+            document.getElementById('main-title').innerText = config.title;
+            document.getElementById('roll-text').style.fontSize = config.fontSize + "px";
+            document.getElementById('winner-name').style.fontSize = (config.fontSize * 1.2) + "px";
+            
             document.getElementById('admin-panel').style.display = 'none';
-            alert("✅ 設定儲存成功！名單共 " + config.names.length + " 人");
         }
 
         function goToReady() {
-            document.getElementById('start-trigger').style.display = 'none';
             document.getElementById('stage').classList.add('ready-mode');
+            document.getElementById('main-title').style.display = 'block';
+            document.getElementById('roll-text').style.display = 'block';
             document.getElementById('draw-trigger').style.display = 'block';
             document.getElementById('admin-trigger').style.display = 'block';
-            document.getElementById('roll-text').style.display = 'block';
             audio.play();
         }
 
-        function toggleDraw() {
-            if (config.names.length === 0 && !rolling) { alert("⚠️ 請先點擊下方的『系統設定』輸入同仁名單！"); return; }
-            if (!rolling) {
-                rolling = true; 
-                timer = setInterval(() => {
-                    document.getElementById('roll-text').innerText = config.names[Math.floor(Math.random() * config.names.length)];
-                }, 50);
-            } else {
-                clearInterval(timer); 
-                rolling = false; 
+        function startAutoDraw() {
+            if (config.names.length === 0 && !rolling) { alert("⚠️ 請先設定名單！"); return; }
+            if (rolling) return;
+            rolling = true; 
+            timer = setInterval(() => {
+                document.getElementById('roll-text').innerText = config.names[Math.floor(Math.random() * config.names.length)];
+            }, 50);
+            setTimeout(() => {
+                clearInterval(timer);
+                rolling = false;
                 showWinner();
-            }
+            }, 5000); 
         }
 
         function showWinner() {
@@ -140,7 +143,7 @@
 
         function reset() {
             document.getElementById('winner-ui').style.display = 'none';
-            document.getElementById('roll-text').innerText = "READY";
+            document.getElementById('roll-text').innerText = ""; 
         }
     </script>
 </body>
