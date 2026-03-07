@@ -3,171 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SIGMABED 2026 春酒抽獎</title>
+    <title>亞護開發 2026 抽獎</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        /* 基礎規格移植：顏色與字體 */
-        :root {
-            --gold-primary: #FCCD4D; /* 移植自 IMG_0035 的金色 */
-            --bg-dark: #2A1010; /* 面板底色 */
-        }
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: "PingFang TC", "Microsoft JhengHei", sans-serif; }
-
-        /* 背景：唯一指定您的工業風空白背板 */
+        /* 1. 背景：鎖定工業風空白背板 */
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
         .app-container {
             position: relative; width: 100vw; height: 100vh;
             background: url('bg-main.jpg.JPG') center/contain no-repeat;
+            background-color: #000;
         }
 
-        /* 橘框位置：活動標題規格移植 (IMG_0035 上方區域) */
-        .header-section {
-            position: absolute; top: 22%; left: 50%; transform: translate(-50%, -50%);
-            width: 80%; text-align: center; color: var(--gold-primary); z-index: 10;
+        /* 2. 橘框位置：移植標題與人數資訊 (IMG_0035 規格) */
+        .header-info {
+            position: absolute; top: 31%; left: 50%; transform: translate(-50%, -50%);
+            width: 80%; text-align: center; z-index: 10;
         }
-        #display-company { font-size: 18px; letter-spacing: 4px; margin-bottom: 5px; opacity: 0.9; }
-        #display-title { font-size: 32px; font-weight: bold; text-shadow: 0 0 10px rgba(252, 205, 77, 0.5); }
-        .stats-info { font-size: 16px; margin-top: 10px; color: #fff; opacity: 0.8; }
+        #comp-name { color: #FCCD4D; font-size: 16px; letter-spacing: 3px; margin-bottom: 2px; }
+        #act-title { color: #FCCD4D; font-size: 32px; font-weight: bold; text-shadow: 0 0 10px rgba(0,0,0,0.5); }
+        .stats { color: #fff; font-size: 14px; margin-top: 5px; opacity: 0.9; }
 
-        /* 獎項名稱：天選之人 (IMG_0035 紅色小框) */
+        /* 3. 獎項標籤 (IMG_0035 規格) */
         .prize-tag {
-            position: absolute; top: 46.5%; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(to right, #8B0000, #FF0000);
-            color: #fff; padding: 4px 20px; border-radius: 20px; font-size: 16px;
-            border: 1px solid var(--gold-primary); z-index: 15;
+            position: absolute; top: 46%; left: 50%; transform: translateX(-50%);
+            background: linear-gradient(to right, #800, #f00);
+            color: #fff; padding: 4px 18px; border-radius: 20px; font-size: 14px;
+            border: 1px solid #FCCD4D; z-index: 20;
         }
 
-        /* 紅框位置：READY 抽獎核心區 */
-        .lotto-stage {
+        /* 4. 紅框抽獎區：僅保留 READY 與跳動名單，無任何黃色贅字 */
+        .lotto-box {
             position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%);
-            width: 70%; height: 25%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5;
+            width: 65%; height: 22%; display: flex; align-items: center; justify-content: center; z-index: 5;
         }
-        #lotto-text {
-            color: var(--gold-primary); font-size: 80px; font-weight: 900;
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.8); text-align: center;
-        }
-        #lotto-subtext { color: #fff; font-size: 20px; opacity: 0.7; margin-top: 10px; }
+        #lotto-main { color: #fff; font-size: 85px; font-weight: 900; text-shadow: 0 0 20px #FCCD4D; text-align: center; }
 
-        /* 開始按鈕規格移植 (IMG_0035 金色長圓鈕) */
-        .btn-gold {
+        /* 5. 開始按鈕 (對齊背板金色按鈕) */
+        #btn-trigger {
             position: absolute; top: 89.5%; left: 50%; transform: translate(-50%, -50%);
-            width: 200px; height: 50px; background: var(--gold-primary);
-            border-radius: 25px; display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: bold; color: #331100; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100;
+            width: 220px; height: 55px; cursor: pointer; z-index: 100;
         }
 
-        /* 系統設定按鈕 (底部小字) */
-        .btn-admin-link {
-            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
-            color: #fff; opacity: 0.5; font-size: 14px; cursor: pointer; z-index: 100;
-            display: flex; align-items: center; gap: 5px;
-        }
-
-        /* 設定面板規格移植 (IMG_0036) */
+        /* 6. 系統設定面板 (完整移植 IMG_0036 配色) */
         #admin-panel {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(42, 16, 16, 0.98); z-index: 999; display: none; color: #fff;
-            padding: 30px; box-sizing: border-box; overflow-y: auto;
+            background: rgba(42, 16, 16, 0.98); z-index: 9999; display: none; color: #fff; padding: 25px; box-sizing: border-box; overflow-y: auto;
         }
-        .admin-header { color: var(--gold-primary); font-size: 24px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 16px; color: #fff; opacity: 0.8; }
-        input, textarea {
-            width: 100%; padding: 12px; background: #4D2626; border: 1px solid #663333;
-            color: #fff; border-radius: 10px; font-size: 18px; box-sizing: border-box;
-        }
-        .btn-save {
-            width: 100%; background: var(--gold-primary); color: #000; padding: 15px;
-            border-radius: 15px; font-size: 20px; font-weight: bold; border: none; margin-top: 20px; cursor: pointer;
-        }
+        .admin-title { color: #FCCD4D; font-size: 22px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; color: #fff; opacity: 0.7; font-size: 14px; }
+        input, textarea { width: 100%; padding: 12px; background: #4D2626; border: 1px solid #633; color: #fff; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .save-btn { width: 100%; background: #FCCD4D; color: #311; padding: 15px; border-radius: 12px; font-weight: bold; font-size: 18px; border: none; margin-top: 15px; cursor: pointer; }
+        
+        /* 隱形設定入口 */
+        #admin-gate { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 150px; height: 40px; cursor: pointer; z-index: 110; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
-        <div class="header-section">
-            <div id="display-company">SIGMABED</div>
-            <div id="display-title">2026 亞護開發春酒抽獎</div>
-            <div class="stats-info">👤 剩餘 <span id="rem-count">60</span> 人 | 已抽 <span id="done-count">0</span> 人</div>
+        <div class="header-info">
+            <div id="comp-name">SIGMABED</div>
+            <div id="act-title">2026 亞護開發春酒抽獎</div>
+            <div class="stats">👤 剩餘 <span id="rem">60</span> 人 | 已抽 <span id="done">0</span> 人</div>
         </div>
 
-        <div class="prize-tag" id="display-prize">🎁 天選之人</div>
+        <div class="prize-tag" id="prize-name">🎁 天選之人</div>
 
-        <div class="lotto-stage">
-            <div id="lotto-text">READY</div>
-            <div id="lotto-subtext">準備開獎</div>
+        <div class="lotto-box">
+            <div id="lotto-main">READY</div>
         </div>
 
-        <div class="btn-gold" onclick="startLotto()">▶ 開始抽獎</div>
-
-        <div class="btn-admin-link" onclick="openAdmin()">⚙️ 系統設定</div>
+        <div id="btn-trigger" onclick="startLotto()"></div>
+        <div id="admin-gate" onclick="toggleAdmin()"></div>
     </div>
 
     <div id="admin-panel">
-        <div class="admin-header">⚙️ 抽獎控制面板</div>
-        <div class="form-group"><label>公司 / 活動名稱</label><input type="text" id="in-comp" value="SIGMABED"></div>
-        <div class="form-group"><label>活動標題</label><input type="text" id="in-title" value="2026 亞護開發春酒抽獎"></div>
-        <div class="form-group"><label>目前獎項名稱</label><input type="text" id="in-prize" value="天選之人"></div>
-        <div class="form-group">
-            <label>抽獎名單 (一人一行)</label>
-            <textarea id="in-names" rows="8">王大明\n李小華\n張美玲\n陳建宏</textarea>
-        </div>
-        <div class="form-group"><label>單次抽出人數</label><input type="number" id="in-per" value="1"></div>
-        <button class="btn-save" onclick="saveAdmin()">💾 儲存設定</button>
-        <button class="btn-save" style="background:transparent; color:#fff; border:1px solid #fff; margin-top:10px;" onclick="closeAdmin()">取消</button>
+        <div class="admin-title">⚙️ 抽獎控制面板</div>
+        <div class="group"><label>公司名稱</label><input type="text" id="in-comp" value="SIGMABED"></div>
+        <div class="group"><label>活動標題</label><input type="text" id="in-title" value="2026 亞護開發春酒抽獎"></div>
+        <div class="group"><label>獎項名稱</label><input type="text" id="in-prize" value="天選之人"></div>
+        <div class="group"><label>名單 (一人一行)</label><textarea id="in-list" rows="10"></textarea></div>
+        <div class="group"><label>單次抽出人數</label><input type="number" id="in-per" value="1"></div>
+        <button class="save-btn" onclick="applySettings()">💾 儲存設定</button>
+        <button class="save-btn" style="background:transparent; color:#fff; border:1px solid #fff;" onclick="toggleAdmin()">取消</button>
     </div>
 
     <audio id="bg-m" src="music.mp3.m4a"></audio>
 
     <script>
         let rolling = false; let timer;
-        let config = { names: [], winners: [], per: 1 };
+        let db = { list: [], winners: [], per: 1 };
         const audio = document.getElementById('bg-m');
 
-        function openAdmin() { document.getElementById('admin-panel').style.display = 'block'; }
-        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
+        function toggleAdmin() { document.getElementById('admin-panel').style.display = document.getElementById('admin-panel').style.display === 'block' ? 'none' : 'block'; }
 
-        function saveAdmin() {
-            document.getElementById('display-company').innerText = document.getElementById('in-comp').value;
-            document.getElementById('display-title').innerText = document.getElementById('in-title').value;
-            document.getElementById('display-prize').innerText = "🎁 " + document.getElementById('in-prize').value;
-            config.names = document.getElementById('in-names').value.split('\n').filter(n => n.trim() !== "");
-            config.per = parseInt(document.getElementById('in-per').value);
-            updateStats();
-            closeAdmin();
+        function applySettings() {
+            document.getElementById('comp-name').innerText = document.getElementById('in-comp').value;
+            document.getElementById('act-title').innerText = document.getElementById('in-title').value;
+            document.getElementById('prize-name').innerText = "🎁 " + document.getElementById('in-prize').value;
+            db.list = document.getElementById('in-list').value.split('\n').filter(n => n.trim() !== "");
+            db.per = parseInt(document.getElementById('in-per').value);
+            refreshStats();
+            toggleAdmin();
         }
 
-        function updateStats() {
-            document.getElementById('rem-count').innerText = config.names.length;
-            document.getElementById('done-count').innerText = config.winners.length;
+        function refreshStats() {
+            document.getElementById('rem').innerText = db.list.length;
+            document.getElementById('done').innerText = db.winners.length;
         }
 
         function startLotto() {
-            if (config.names.length === 0 && !rolling) { alert("請先設定名單！"); return; }
+            if (db.list.length === 0 && !rolling) { alert("請先於系統設定貼入名單！"); return; }
             if (rolling) return;
             rolling = true;
             audio.play();
-            
+
             timer = setInterval(() => {
-                document.getElementById('lotto-text').innerText = config.names[Math.floor(Math.random() * config.names.length)];
-                document.getElementById('lotto-subtext').innerText = "正在抽獎中...";
+                document.getElementById('lotto-main').innerText = db.list[Math.floor(Math.random() * db.list.length)];
             }, 50);
 
             setTimeout(() => {
                 clearInterval(timer);
                 rolling = false;
-                let currentWinners = [];
-                for(let i=0; i<config.per; i++) {
-                    if(config.names.length > 0) {
-                        let idx = Math.floor(Math.random() * config.names.length);
-                        let name = config.names.splice(idx, 1)[0];
-                        currentWinners.push(name);
-                        config.winners.push(name);
+                let winners = [];
+                for(let i=0; i<db.per; i++) {
+                    if(db.list.length > 0) {
+                        let idx = Math.floor(Math.random() * db.list.length);
+                        let name = db.list.splice(idx, 1)[0];
+                        winners.push(name);
+                        db.winners.push(name);
                     }
                 }
-                document.getElementById('lotto-text').innerHTML = currentWinners.join('<br>');
-                document.getElementById('lotto-subtext').innerText = "恭喜中獎！";
-                updateStats();
+                document.getElementById('lotto-main').innerHTML = winners.join('<br>');
+                refreshStats();
                 confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
             }, 10000); // 10秒拉霸
         }
