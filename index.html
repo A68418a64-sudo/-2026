@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>亞護開發 2026 春酒抽獎</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+        .main-stage {
+            position: relative; width: 100vw; height: 100vh;
+            background: url('yahu.jpg.PNG') center/cover no-repeat;
+        }
+        .ready-mode { background-image: url('ready.jpg.PNG') !important; }
+
+        /* 1. 封面「遊戲開始」點擊區 (對準 yahu.jpg 的按鈕位置) */
+        #start-trigger {
+            position: absolute; width: 32%; height: 12%; top: 59%; left: 50%;
+            transform: translate(-50%, -50%); cursor: pointer; z-index: 10;
+        }
+
+        /* 2. 第二張圖「開始抽獎」點擊區 (對準 ready.jpg 的按鈕位置) */
+        #draw-trigger {
+            position: absolute; width: 22%; height: 8%; top: 76%; left: 50%;
+            transform: translate(-50%, -50%); cursor: pointer; z-index: 10; display: none;
+        }
+
+        /* 3. 第二張圖「系統設定」點擊區 (對準 ready.jpg 最下方的齒輪文字) */
+        #admin-trigger {
+            position: absolute; width: 20%; height: 5%; bottom: 3%; left: 50%;
+            transform: translateX(-50%); cursor: pointer; z-index: 10; display: none;
+        }
+
+        /* 名單滾動顯示 (完全透明背景，僅顯示白字) */
+        #roll-text {
+            position: absolute; top: 56%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 75px; font-weight: bold; color: #fff; text-shadow: 0 0 30px rgba(252, 205, 77, 0.8);
+            z-index: 5; display: none; width: 100%; text-align: center; pointer-events: none;
+        }
+
+        /* 中獎彈窗 */
+        #winner-ui {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.85);
+        }
+        .winner-name { font-size: 100px; color: #fff; text-shadow: 0 0 50px #fccd4d; font-weight: bold; text-align: center; }
+
+        /* 後台設定面板 (這部分必須要有介面才能輸入名單) */
+        #admin-panel {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 100; display: none; color: white; padding: 30px; box-sizing: border-box;
+        }
+        .admin-input { width: 100%; background: #222; color: #fff; border: 1px solid #444; padding: 15px; margin: 15px 0; font-size: 18px; }
+        .save-btn { background: #fccd4d; color: #000; padding: 15px 40px; border: none; font-weight: bold; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="main-stage" id="stage">
+        <div id="start-trigger" onclick="goToReady()"></div>
+
+        <div id="roll-text"></div>
+        <div id="draw-trigger" onclick="toggleDraw()"></div>
+        <div id="admin-trigger" onclick="showAdmin()"></div>
+
+        <div id="winner-ui" onclick="reset()">
+            <div style="color:#fccd4d; font-size:30px; letter-spacing:10px; margin-bottom:20px;">恭喜獲得</div>
+            <div id="winner-name" class="winner-name"></div>
+            <div style="color:#aaa; margin-top:40px; font-size:18px;">點擊螢幕繼續</div>
+        </div>
+    </div>
+
+    <div id="admin-panel">
+        <h2 style="color:#fccd4d">亞護開發：抽獎系統設定</h2>
+        <p>1. 請輸入 60 人抽獎名單 (一人一行)：</p>
+        <textarea id="admin-names" class="admin-input" rows="10"></textarea>
+        <p>2. 總共要抽幾次：<input type="number" id="admin-total" class="admin-input" style="width:100px" value="10"></p>
+        <p>3. 每次抽出幾個人：<input type="number" id="admin-per" class="admin-input" style="width:100px" value="1"></p>
+        <button class="save-btn" onclick="hideAdmin()">儲存並關閉</button>
+    </div>
+
+    <audio id="mulan-audio" src="music.mp3.m4a"></audio>
+
+    <script>
+        let rolling = false; 
+        let timer;
+        let config = { names: [], totalDraws: 0, perDraw: 1 };
+        const audio = document.getElementById('mulan-audio');
+
+        function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; }
+        function hideAdmin() {
+            const rawNames = document.getElementById('admin-names').value.split('\n').filter(n => n.trim() !== "");
+            config.names = rawNames.slice(0, 60);
+            config.totalDraws = parseInt(document.getElementById('admin-total').value);
+            config.perDraw = parseInt(document.getElementById('admin-per').value);
+            document.getElementById('admin-panel').style.display = 'none';
+        }
+
+        // 動作 1：切換到第二張圖
+        function goToReady() {
+            document.getElementById('start-trigger').style.display = 'none';
+            document.getElementById('stage').classList.add('ready-mode');
+            document.getElementById('draw-trigger').style.display = 'block';
+            document.getElementById('admin-trigger').style.display = 'block';
+            document.getElementById('roll-text').style.display = 'block';
+            audio.play(); // 音樂只播放一次
+        }
+
+        // 動作 2：點擊你圖片上的「開始抽獎」
+        function toggleDraw() {
+            if (config.names.length === 0 && !rolling) { alert("請點擊下方『系統設定』輸入名單！"); return; }
+            if (config.totalDraws <= 0 && !rolling) { alert("抽獎次數已用完！"); return; }
+            
+            if (!rolling) {
+                rolling = true; 
+                timer = setInterval(() => {
+                    document.getElementById('roll-text').innerText = config.names[Math.floor(Math.random() * config.names.length)];
+                }, 50);
+            } else {
+                clearInterval(timer); 
+                rolling = false; 
+                config.totalDraws--;
+                showWinner();
+            }
+        }
+
+        function showWinner() {
+            let winners = [];
+            for(let i=0; i<config.perDraw; i++) {
+                if(config.names.length > 0) {
+                    const idx = Math.floor(Math.random() * config.names.length);
+                    winners.push(config.names.splice(idx, 1)[0]);
+                }
+            }
+            document.getElementById('winner-name').innerText = winners.join('\n');
+            document.getElementById('winner-ui').style.display = 'flex';
+            confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
+        }
+
+        function reset() {
+            document.getElementById('winner-ui').style.display = 'none';
+            document.getElementById('roll-text').innerText = "";
+        }
+    </script>
+</body>
+</html>
