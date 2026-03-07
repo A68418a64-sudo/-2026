@@ -9,46 +9,48 @@
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: "Microsoft JhengHei", sans-serif; }
         .stage { position: relative; width: 100vw; height: 100vh; background-color: #000; }
         
-        /* 封面圖 */
+        /* 1. 封面圖 (yahu.jpg.PNG) */
         .cover { position: absolute; width: 100%; height: 100%; background: url('yahu.jpg.PNG') center/contain no-repeat; z-index: 100; cursor: pointer; }
         
-        /* 主背板（空白版） */
+        /* 2. 空白主背板 (bg-main.jpg.JPG) */
         .main-bg { position: absolute; width: 100%; height: 100%; background: url('bg-main.jpg.JPG') center/contain no-repeat; display: none; }
 
-        /* 橘框位置：自定義標題區 (與原圖規格一致) */
+        /* 3. 橘框區域：自定義標題 (金色規格還原) */
         #custom-title {
-            position: absolute; top: 31.5%; left: 50.1%; transform: translate(-50%, -50%);
-            width: 80%; text-align: center; font-weight: 800; font-size: 38px;
-            /* 金色漸層與陰影效果 */
-            background: linear-gradient(to bottom, #FCCD4D 20%, #B8860B 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.8));
+            position: absolute; top: 31.5%; left: 50%; transform: translate(-50%, -50%);
+            width: 85%; text-align: center; font-weight: 900; font-size: 38px;
+            color: #FCCD4D; /* 金色文字 */
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(252, 205, 77, 0.4);
             letter-spacing: 2px; z-index: 20;
         }
 
-        /* 紅框位置：拉霸與開獎區 */
+        /* 4. 紅框區域：僅限 READY 與 10秒拉霸名單 (絕無多餘文字) */
         #lotto-area {
             position: absolute; top: 68%; left: 50%; transform: translate(-50%, -50%);
             width: 70%; height: 25%; display: flex; align-items: center; justify-content: center; z-index: 15;
         }
         #lotto-text {
-            color: #FFFFFF; font-weight: bold; text-align: center; line-height: 1.2;
-            text-shadow: 0 0 20px #FCCD4D, 2px 2px 5px rgba(0,0,0,0.5);
+            color: #FFFFFF; font-weight: bold; text-align: center;
+            text-shadow: 0 0 25px #FCCD4D, 2px 2px 8px rgba(0,0,0,0.8);
         }
 
-        /* 按鈕區 */
-        #btn-start { position: absolute; width: 35%; height: 10%; top: 89.5%; left: 50.5%; transform: translate(-50%, -50%); cursor: pointer; z-index: 50; }
-        #btn-admin { position: absolute; width: 20%; height: 6%; bottom: 0; left: 50%; transform: translateX(-50%); cursor: pointer; z-index: 60; }
+        /* 5. 實體按鈕區 */
+        #btn-start { position: absolute; width: 35%; height: 10%; top: 89.5%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 50; }
+        
+        /* 6. 系統設定：這一次我加了亮色框框，確保您找得到，點擊它即可進入設定 */
+        #btn-admin { 
+            position: absolute; width: 25%; height: 6%; bottom: 0.5%; left: 50%; transform: translateX(-50%); 
+            cursor: pointer; z-index: 60; border: 1px dashed rgba(252, 205, 77, 0.3); /* 淡淡虛線框，方便您找位置 */
+        }
 
-        /* 後台面板 */
+        /* 設定面板 */
         #admin-panel {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); z-index: 999; display: none; color: #fff; padding: 40px; box-sizing: border-box;
+            background: rgba(0,0,0,0.98); z-index: 999; display: none; color: #fff; padding: 30px; box-sizing: border-box; overflow-y: auto;
         }
-        .input-group { margin-bottom: 20px; }
-        .input-group label { display: block; margin-bottom: 5px; color: #FCCD4D; }
+        .input-group { margin-bottom: 15px; }
         input, textarea { width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: #fff; border-radius: 8px; font-size: 16px; }
-        .save-btn { background: #FCCD4D; color: #000; padding: 15px 40px; border: none; font-weight: bold; font-size: 20px; border-radius: 30px; cursor: pointer; margin-top: 20px; }
+        .save-btn { background: #FCCD4D; color: #000; padding: 15px 40px; border: none; font-weight: bold; font-size: 20px; border-radius: 30px; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -64,33 +66,18 @@
             </div>
 
             <div id="btn-start" onclick="startRolling()"></div>
-            <div id="btn-admin" onclick="showAdmin()"></div>
+            <div id="btn-admin" onclick="showAdmin()">系統設定</div>
         </div>
     </div>
 
     <div id="admin-panel">
-        <h2 style="color: #FCCD4D;">抽獎系統設定</h2>
-        <div class="input-group">
-            <label>橘框標題文字 (可自由修改)：</label>
-            <input type="text" id="set-title" value="2026 亞護開發春酒抽獎">
-        </div>
-        <div class="input-group">
-            <label>標題字體大小 (px)：</label>
-            <input type="number" id="set-title-size" value="38">
-        </div>
-        <div class="input-group">
-            <label>同仁名單 (一人一行)：</label>
-            <textarea id="set-names" rows="8" placeholder="請貼入名單..."></textarea>
-        </div>
-        <div style="display: flex; gap: 20px;">
-            <div class="input-group" style="flex: 1;">
-                <label>每次抽出人數：</label>
-                <input type="number" id="set-per" value="1">
-            </div>
-            <div class="input-group" style="flex: 1;">
-                <label>中獎文字大小 (px)：</label>
-                <input type="number" id="set-font" value="85">
-            </div>
+        <h2 style="color: #FCCD4D;">抽獎系統設定 (修改後請按儲存)</h2>
+        <div class="input-group"><label>橘框標題文字：</label><input type="text" id="set-title" value="2026 亞護開發春酒抽獎"></div>
+        <div class="input-group"><label>標題字體大小 (px)：</label><input type="number" id="set-title-size" value="38"></div>
+        <div class="input-group"><label>抽獎名單 (一人一行)：</label><textarea id="set-names" rows="8"></textarea></div>
+        <div style="display: flex; gap: 15px;">
+            <div class="input-group" style="flex: 1;"><label>每次抽幾人：</label><input type="number" id="set-per" value="1"></div>
+            <div class="input-group" style="flex: 1;"><label>中獎文字大小：</label><input type="number" id="set-font" value="85"></div>
         </div>
         <center><button class="save-btn" onclick="saveConfig()">儲存設定並返回</button></center>
     </div>
@@ -99,7 +86,7 @@
 
     <script>
         let rolling = false; let rollTimer;
-        let config = { names: [], per: 1, title: "2026 亞護開發春酒抽獎", tSize: 38, fSize: 85 };
+        let config = { names: [], per: 1, title: "", tSize: 38, fSize: 85 };
         const audio = document.getElementById('bg-music');
 
         function enterGame() {
@@ -117,30 +104,24 @@
             config.per = parseInt(document.getElementById('set-per').value);
             config.fSize = parseInt(document.getElementById('set-font').value);
 
-            // 更新畫面
-            const titleEl = document.getElementById('custom-title');
-            titleEl.innerText = config.title;
-            titleEl.style.fontSize = config.tSize + "px";
+            document.getElementById('custom-title').innerText = config.title;
+            document.getElementById('custom-title').style.fontSize = config.tSize + "px";
             document.getElementById('lotto-text').style.fontSize = config.fSize + "px";
-            
             document.getElementById('admin-panel').style.display = 'none';
         }
 
         function startRolling() {
-            if (config.names.length === 0 && !rolling) { alert("請先進入後台輸入名單！"); return; }
+            if (config.names.length === 0 && !rolling) { alert("⚠️ 請先點擊最下方『系統設定』輸入名單！"); return; }
             if (rolling) return;
-
             rolling = true;
             rollTimer = setInterval(() => {
                 document.getElementById('lotto-text').innerText = config.names[Math.floor(Math.random() * config.names.length)];
             }, 40);
-
-            // 10 秒後停止
             setTimeout(() => {
                 clearInterval(rollTimer);
                 rolling = false;
                 showWinners();
-            }, 10000);
+            }, 10000); // 10秒拉霸
         }
 
         function showWinners() {
@@ -155,7 +136,6 @@
             confetti({ particleCount: 200, spread: 100, origin: { y: 0.75 } });
         }
 
-        // 點擊背景重置
         document.getElementById('main-page').onclick = function(e) {
             if(!rolling && (e.target.id === 'main-page' || e.target.id === 'lotto-area')) {
                 document.getElementById('lotto-text').innerHTML = 'READY<br><span style="font-size: 0.5em;">準備開獎</span>';
