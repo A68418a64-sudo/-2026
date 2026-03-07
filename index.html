@@ -16,25 +16,20 @@
         }
         .ready-mode { background-image: url('ready.jpg.PNG') !important; }
 
-        /* 封面：遊戲開始按鈕 */
-        #start-trigger {
-            position: absolute; width: 45%; height: 18%; top: 59%; left: 50%;
-            transform: translate(-50%, -50%); cursor: pointer; z-index: 99;
-        }
+        /* 封面：遊戲開始點擊區 */
+        #start-trigger { position: absolute; width: 45%; height: 18%; top: 59%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99; }
 
-        /* 抽獎頁：中間滾動文字下方的「開始抽獎」圖示區 */
-        #draw-trigger {
-            position: absolute; width: 35%; height: 12%; top: 76%; left: 50%;
-            transform: translate(-50%, -50%); cursor: pointer; z-index: 99; display: none;
-        }
+        /* 抽獎頁：開始抽獎按鈕區 */
+        #draw-trigger { position: absolute; width: 35%; height: 12%; top: 76%; left: 50%; transform: translate(-50%, -50%); cursor: pointer; z-index: 99; display: none; }
 
-        /* 🛡️ 最終修正：將系統設定移到左上角 (避開 iPad 底部所有干擾) */
+        /* 🛡️ 明確的系統設定按鈕 (放在右上方，避開底部所有干擾) */
         #admin-trigger {
-            position: absolute; 
-            width: 80px; height: 80px; 
-            top: 0; left: 0; 
+            position: absolute; top: 20px; right: 20px; 
+            padding: 10px 20px; background: rgba(252, 205, 77, 0.8); 
+            color: #000; border-radius: 30px; font-weight: bold; font-size: 18px;
             cursor: pointer; z-index: 1000; display: none;
-            /* background: rgba(255,255,255,0.1); // 測試用，正常時為透明 */
+            box-shadow: 0 0 15px rgba(252, 205, 77, 0.5);
+            border: 2px solid #fff;
         }
 
         #roll-text {
@@ -50,7 +45,7 @@
         }
         .winner-name { font-size: 110px; color: #fff; text-shadow: 0 0 50px #fccd4d; font-weight: bold; text-align: center; line-height: 1.2; }
 
-        /* 設定面板 */
+        /* 設定面板介面 */
         #admin-panel {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.98); z-index: 9999; display: none; color: white; padding: 40px; box-sizing: border-box;
@@ -65,7 +60,7 @@
         <div id="roll-text"></div>
         <div id="draw-trigger" onclick="toggleDraw()"></div>
         
-        <div id="admin-trigger" onclick="showAdmin()"></div>
+        <div id="admin-trigger" onclick="showAdmin()">⚙️ 系統設定</div>
 
         <div id="winner-ui" onclick="reset()">
             <div style="color:#fccd4d; font-size:35px; letter-spacing:10px; margin-bottom:25px;">恭喜獲得</div>
@@ -76,20 +71,20 @@
 
     <div id="admin-panel">
         <h2 style="color:#fccd4d; margin-top:0;">亞護開發：抽獎名單設定</h2>
-        <p>1. 請貼上名單 (一人一行)：</p>
+        <p>1. 請輸入或貼上名單 (一人一行)：</p>
         <textarea id="admin-names" class="admin-input" rows="10" placeholder="王小明&#10;李大華..."></textarea>
         <div style="display:flex; gap:20px;">
-            <div style="flex:1;">抽獎次數：<input type="number" id="admin-total" class="admin-input" value="10"></div>
+            <div style="flex:1;">抽獎次數：<input type="number" id="admin-total" class="admin-input" value="100"></div>
             <div style="flex:1;">每次抽出：<input type="number" id="admin-per" class="admin-input" value="1"></div>
         </div>
-        <center><button class="save-btn" onclick="hideAdmin()">儲存並開始抽獎</button></center>
+        <center><button class="save-btn" onclick="hideAdmin()">儲存設定並關閉</button></center>
     </div>
 
     <audio id="mulan-audio" src="music.mp3.m4a"></audio>
 
     <script>
         let rolling = false; let timer; 
-        let config = { names: [], totalDraws: 10, perDraw: 1 };
+        let config = { names: [], totalDraws: 100, perDraw: 1 };
         const audio = document.getElementById('mulan-audio');
 
         function showAdmin() { document.getElementById('admin-panel').style.display = 'block'; }
@@ -100,7 +95,7 @@
             config.totalDraws = parseInt(document.getElementById('admin-total').value);
             config.perDraw = parseInt(document.getElementById('admin-per').value);
             document.getElementById('admin-panel').style.display = 'none';
-            alert("✅ 設定儲存！目前共有 " + config.names.length + " 位同仁在名單內。");
+            alert("✅ 設定已更新！目前名單人數：" + config.names.length);
         }
 
         function goToReady() {
@@ -113,10 +108,7 @@
         }
 
         function toggleDraw() {
-            if (config.names.length === 0 && !rolling) { 
-                alert("⚠️ 請點擊左上角進入系統設定，輸入同仁名單！"); 
-                return; 
-            }
+            if (config.names.length === 0 && !rolling) { alert("⚠️ 請點擊右上角『系統設定』輸入名單！"); return; }
             if (!rolling) {
                 rolling = true; 
                 timer = setInterval(() => {
