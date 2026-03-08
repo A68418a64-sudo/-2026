@@ -15,22 +15,24 @@ margin:0;
 padding:0;
 width:100%;
 height:100%;
-overflow:hidden;
 font-family:sans-serif;
+overflow:hidden;
 }
 
 .stage{
-width:100vw;
-height:100vh;
+width:100%;
+height:100%;
 background:url("yahu.jpg") center/cover no-repeat;
 position:relative;
 }
+
+/* READY畫面 */
 
 .ready{
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 第一畫面開始 */
+/* 開始按鈕 */
 
 .start-btn{
 position:absolute;
@@ -52,38 +54,27 @@ transform:translate(-50%,-50%);
 width:22%;
 height:8%;
 cursor:pointer;
-display:none;
 }
 
-/* 音樂 */
+/* 右上角控制 */
 
-.music{
+.topbar{
 position:absolute;
 top:20px;
 right:20px;
+display:flex;
+gap:10px;
+}
+
+.btn{
 background:rgba(0,0,0,0.6);
 color:white;
 padding:10px 15px;
-border-radius:10px;
+border-radius:8px;
 cursor:pointer;
-display:none;
 }
 
-/* 系統設定 */
-
-.setting{
-position:absolute;
-top:20px;
-right:90px;
-background:rgba(0,0,0,0.6);
-color:white;
-padding:10px 15px;
-border-radius:10px;
-cursor:pointer;
-display:none;
-}
-
-/* 人數顯示 */
+/* 左上角人數 */
 
 .counter{
 position:absolute;
@@ -91,10 +82,9 @@ top:20px;
 left:20px;
 background:rgba(0,0,0,0.6);
 color:white;
-padding:12px 18px;
-border-radius:10px;
+padding:10px 15px;
+border-radius:8px;
 font-size:18px;
-display:none;
 }
 
 /* 抽獎滾動 */
@@ -107,8 +97,8 @@ width:100%;
 height:100%;
 background:rgba(0,0,0,0.9);
 display:none;
-justify-content:center;
 align-items:center;
+justify-content:center;
 flex-direction:column;
 color:white;
 }
@@ -128,8 +118,8 @@ width:100%;
 height:100%;
 background:rgba(0,0,0,0.9);
 display:none;
-justify-content:center;
 align-items:center;
+justify-content:center;
 flex-direction:column;
 color:white;
 }
@@ -139,7 +129,7 @@ font-size:100px;
 text-shadow:0 0 50px gold;
 }
 
-/* 系統設定 */
+/* 設定面板 */
 
 .admin{
 position:fixed;
@@ -153,7 +143,7 @@ padding:40px;
 color:white;
 }
 
-input,textarea{
+textarea,input{
 width:100%;
 padding:10px;
 margin:10px 0;
@@ -178,11 +168,15 @@ cursor:pointer;
 
 <div class="start-btn" onclick="startGame()"></div>
 
-<div class="draw-btn" id="drawBtn" onclick="startLottery()"></div>
+<div class="draw-btn" onclick="startLottery()"></div>
 
-<div class="music" id="musicBtn" onclick="toggleMusic()">🔊</div>
+<div class="topbar">
 
-<div class="setting" id="settingBtn" onclick="openAdmin()">⚙</div>
+<div class="btn" onclick="toggleMusic()" id="musicBtn">🔊</div>
+
+<div class="btn" onclick="openAdmin()">⚙</div>
+
+</div>
 
 <div class="counter" id="counter">
 參與 0 人<br>
@@ -191,12 +185,12 @@ cursor:pointer;
 </div>
 
 <div class="rolling" id="rolling">
-<div style="margin-bottom:40px;font-size:30px;">抽獎進行中</div>
+<div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
 <div id="rollingName" class="rolling-name"></div>
 </div>
 
 <div class="winner" id="winner" onclick="closeWinner()">
-<div style="margin-bottom:30px;font-size:30px;">天選之人</div>
+<div style="font-size:30px;margin-bottom:30px">天選之人</div>
 <div id="winnerName" class="winner-name"></div>
 </div>
 
@@ -206,13 +200,13 @@ cursor:pointer;
 
 <h2>⚙ 抽獎系統設定</h2>
 
-<p>參與名單 (一行一人)</p>
+<p>抽獎名單 (一行一人)</p>
+
 <textarea id="names" rows="10"></textarea>
 
 <p>一次抽幾人</p>
-<input id="perDraw" type="number" value="1">
 
-<br><br>
+<input id="perDraw" type="number" value="1">
 
 <button onclick="saveAdmin()">儲存設定</button>
 
@@ -223,28 +217,15 @@ cursor:pointer;
 <script>
 
 let names=[]
-let totalPeople=0
-let drawnPeople=0
 let perDraw=1
-let timer
+let total=0
+let drawn=0
 
 const audio=document.getElementById("bgm")
 
 function startGame(){
 
 document.getElementById("stage").classList.add("ready")
-
-document.querySelector(".start-btn").style.display="none"
-
-document.getElementById("drawBtn").style.display="block"
-
-document.getElementById("musicBtn").style.display="block"
-
-document.getElementById("settingBtn").style.display="block"
-
-document.getElementById("counter").style.display="block"
-
-audio.play()
 
 }
 
@@ -278,8 +259,8 @@ names=document.getElementById("names").value
 
 perDraw=parseInt(document.getElementById("perDraw").value)
 
-totalPeople=names.length
-drawnPeople=0
+total=names.length
+drawn=0
 
 updateCounter()
 
@@ -289,11 +270,11 @@ document.getElementById("admin").style.display="none"
 
 function updateCounter(){
 
-let remain=totalPeople-drawnPeople
+let remain=total-drawn
 
 document.getElementById("counter").innerHTML=
-`參與 ${totalPeople} 人<br>
-已抽 ${drawnPeople} 人<br>
+`參與 ${total} 人<br>
+已抽 ${drawn} 人<br>
 剩餘 ${remain} 人`
 
 }
@@ -310,7 +291,7 @@ return
 
 document.getElementById("rolling").style.display="flex"
 
-timer=setInterval(()=>{
+let timer=setInterval(()=>{
 
 let name=names[Math.floor(Math.random()*names.length)]
 
@@ -342,7 +323,7 @@ let index=Math.floor(Math.random()*names.length)
 
 winners.push(names.splice(index,1)[0])
 
-drawnPeople++
+drawn++
 
 }
 
