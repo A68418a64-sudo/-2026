@@ -6,8 +6,7 @@
     <title>2026 亞護開發春酒抽獎</title>
     <style>
         :root {
-            --primary-gold: #d4af37;
-            --industrial-dark: rgba(20, 20, 20, 0.9);
+            --primary-gold: #d4af37; /* 工業風金色 */
         }
 
         body, html {
@@ -20,182 +19,227 @@
             font-family: "Microsoft JhengHei", sans-serif;
         }
 
-        /* 主視覺容器 */
-        .game-container {
+        /* 主視覺容器：直接使用整張圖作為背景 */
+        .game-app {
             position: relative;
             width: 100vw;
             height: 100vh;
             background: url('yahu.jpg.PNG') no-repeat center center;
-            background-size: contain;
+            background-size: contain; /* 確保整張圖完整顯示 */
         }
 
-        /* 透明熱區：開始抽獎 (對準圖片中的遊戲開始按鈕) */
-        #start-btn {
+        /* 透明點擊熱區：開始抽獎按鈕 */
+        #btn-start-draw {
             position: absolute;
-            left: 42%; top: 58%;
-            width: 16%; height: 8%;
+            left: 50%;
+            bottom: 8%; /* 根據按鈕在圖中的位置微調 */
+            transform: translateX(-50%);
+            width: 25%; /* 按鈕寬度佔畫面的百分比 */
+            height: 8%; /* 按鈕高度佔畫面的百分比 */
             cursor: pointer;
             z-index: 10;
-            /* background: rgba(255,0,0,0.3); // 除錯用，正式環境請註解掉 */
+            /* background: rgba(255,0,0,0.3); // 除錯用：打開可看到點擊區域 */
         }
 
-        /* 透明熱區：系統設定 (對準圖片右下角或底部文字) */
-        #settings-trigger {
+        /* 透明點擊熱區：系統設定 (對準圖片底部文字) */
+        #btn-settings {
             position: absolute;
-            right: 2%; bottom: 2%;
-            width: 10%; height: 5%;
+            right: 2%;
+            bottom: 2%;
+            width: 15%;
+            height: 5%;
             cursor: pointer;
             z-index: 10;
         }
 
-        /* 中央抽獎區域遮罩 (用來擋住 READY 字樣) */
-        .result-overlay {
+        /* 中央抽獎結果顯示區 (對準圖中紅色框框位置) */
+        #result-display {
             position: absolute;
-            left: 31%; top: 54%; /* 根據你的紅色框框位置微調 */
-            width: 38%; height: 18%;
-            display: none;
-            flex-direction: column;
+            left: 50%;
+            top: 68%; /* 根據框框在圖中的位置微調 */
+            transform: translate(-50%, -50%);
+            width: 38%; /* 框框寬度佔畫面的百分比 */
+            height: 18%; /* 框框高度佔畫面的百分比 */
+            display: flex;
             justify-content: center;
             align-items: center;
-            background: rgba(30, 25, 20, 0.95); /* 模擬背景色 */
-            border-radius: 15px;
-            z-index: 5;
-            overflow: hidden;
-        }
-
-        /* 滾動文字與結果字體 */
-        #lottery-display {
             color: #fff;
-            text-align: center;
             font-weight: bold;
-            line-height: 1.2;
-            text-shadow: 0 0 10px var(--primary-gold);
-            word-break: break-all;
-            padding: 10px;
+            text-align: center;
+            text-shadow: 0 0 10px rgba(255,255,255,0.7);
+            z-index: 5;
+            overflow: hidden; /* 防止字體過大溢出 */
+            /* background: rgba(0,0,255,0.2); // 除錯用 */
         }
 
-        /* 工業風設定頁面 */
+        /* 當點擊開始後，用來擋住 READY 字樣的遮罩 */
+        #ready-mask {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(30, 25, 20, 0.98); /* 模擬背景質感 */
+            display: none; /* 初始隱藏 */
+            z-index: 1;
+        }
+
+        /* 名單字體樣式 */
+        #name-output {
+            position: relative;
+            z-index: 2;
+            word-break: break-all;
+            line-height: 1.2;
+        }
+
+        /* 滾動動畫樣式 */
+        .rolling {
+            animation: textBlurShuffle 0.08s infinite;
+        }
+
+        @keyframes textBlurShuffle {
+            0% { filter: blur(0px); opacity: 0.8; }
+            50% { filter: blur(1px); opacity: 1; }
+            100% { filter: blur(0px); opacity: 0.8; }
+        }
+
+        /* 工業風設定面板 */
         #settings-panel {
             position: fixed;
-            top: 50%; left: 50%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%);
-            width: 80%; max-width: 500px;
-            background: var(--industrial-dark);
+            width: 80%;
+            max-width: 450px;
+            background: rgba(15, 15, 15, 0.95);
             border: 2px solid var(--primary-gold);
-            padding: 20px;
+            border-radius: 10px;
             color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
             display: none;
             z-index: 100;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
 
-        .setting-item { margin-bottom: 15px; }
-        textarea { width: 100%; height: 80px; background: #333; color: #fff; border: 1px solid #666; }
-        input[type="number"], input[type="range"] { width: 100%; }
-        button.save-btn {
+        #settings-panel h3 { text-align: center; color: var(--primary-gold); margin-top: 0; }
+        .setting-group { margin-bottom: 15px; }
+        .setting-group label { display: block; margin-bottom: 5px; font-size: 14px; }
+        .setting-group textarea { width: 100%; height: 100px; background: #222; border: 1px solid #444; color: #fff; padding: 5px; box-sizing: border-box; }
+        .setting-group input[type="number"], .setting-group input[type="range"] { width: 100%; box-sizing: border-box; }
+        #font-size-val { float: right; color: var(--primary-gold); }
+
+        .btn-save {
+            width: 100%;
+            padding: 12px;
             background: var(--primary-gold);
-            border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; width: 100%;
+            border: none;
+            border-radius: 5px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
         }
 
-        /* 動態滾動動畫 */
-        .rolling { animation: blurRolling 0.1s infinite; }
-        @keyframes blurRolling {
-            0% { filter: blur(0px); transform: translateY(0); }
-            50% { filter: blur(2px); transform: translateY(-5px); }
-            100% { filter: blur(0px); transform: translateY(0); }
-        }
     </style>
 </head>
 <body>
 
-<div class="game-container">
-    <div id="start-btn" onclick="startLottery()"></div>
-    <div id="settings-trigger" onclick="toggleSettings()"></div>
+    <div class="game-app">
+        <div id="btn-start-draw" onclick="startRolling()"></div>
+        <div id="btn-settings" onclick="toggleSettings()"></div>
 
-    <div id="result-overlay" class="result-overlay">
-        <div id="lottery-display">READY</div>
+        <div id="result-display">
+            <div id="ready-mask"></div>
+            <div id="name-output"></div>
+        </div>
     </div>
-</div>
 
-<div id="settings-panel">
-    <h3>⚙️ 系統設定 (工業風模式)</h3>
-    <div class="setting-item">
-        <label>抽獎名單 (每行一個名字):</label>
-        <textarea id="name-list">王大明&#10;李小華&#10;張三&#10;李四&#10;趙五</textarea>
+    <div id="settings-panel">
+        <h3>⚙️ 系統設定</h3>
+        
+        <div class="setting-group">
+            <label>抽獎名單 (每行一人):</label>
+            <textarea id="raw-names">亞護員工A&#10;亞護員工B&#10;亞護員工C&#10;員工D&#10;員工E</textarea>
+        </div>
+
+        <div class="setting-group">
+            <label>每次抽取人數:</label>
+            <input type="number" id="draw-count" value="1" min="1">
+        </div>
+
+        <div class="setting-group">
+            <label>字體大小: <span id="font-size-val">50px</span></label>
+            <input type="range" id="font-size-slider" min="20" max="150" value="50" oninput="adjustFontSize(this.value)">
+        </div>
+
+        <button class="btn-save" onclick="toggleSettings()">儲存設定並關閉</button>
     </div>
-    <div class="setting-item">
-        <label>每次抽取人數:</label>
-        <input type="number" id="draw-count" value="1">
-    </div>
-    <div class="setting-item">
-        <label>結果字體大小 (px):</label>
-        <input type="range" id="font-size-slider" min="20" max="100" value="40" oninput="updateFontSize(this.value)">
-        <span id="font-size-val">40px</span>
-    </div>
-    <button class="save-btn" onclick="toggleSettings()">儲存並關閉</button>
-</div>
 
-<script>
-    let names = [];
-    let isRolling = false;
+    <script>
+        let isRolling = false;
+        let currentFontSize = 50;
 
-    function toggleSettings() {
-        const panel = document.getElementById('settings-panel');
-        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
-    }
-
-    function updateFontSize(val) {
-        document.getElementById('font-size-val').innerText = val + 'px';
-        document.getElementById('lottery-display').style.fontSize = val + 'px';
-    }
-
-    function startLottery() {
-        if (isRolling) return;
-
-        const listText = document.getElementById('name-list').value.trim();
-        names = listText.split('\n').filter(n => n.trim() !== '');
-        const drawCount = parseInt(document.getElementById('draw-count').value);
-
-        if (names.length < drawCount) {
-            alert('名單人數不足！');
-            return;
+        // 開關設定面板
+        function toggleSettings() {
+            const panel = document.getElementById('settings-panel');
+            panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
         }
 
-        isRolling = true;
-        const display = document.getElementById('lottery-display');
-        const overlay = document.getElementById('result-overlay');
-        
-        // 顯示遮罩並開始滾動
-        overlay.style.display = 'flex';
-        display.classList.add('rolling');
+        // 調整字體大小
+        function adjustFontSize(val) {
+            currentFontSize = val;
+            document.getElementById('font-size-val').innerText = val + 'px';
+            document.getElementById('name-output').style.fontSize = val + 'px';
+        }
 
-        // 模擬拉霸滾動效果
-        let rollInterval = setInterval(() => {
-            display.innerText = names[Math.floor(Math.random() * names.length)];
-        }, 80);
+        // 開始抽獎
+        function startRolling() {
+            if (isRolling) return; // 滾動中不可重複點擊
 
-        // 10秒後停止並跳出最終名單
-        setTimeout(() => {
-            clearInterval(rollInterval);
-            display.classList.remove('rolling');
-            
-            // 隨機抽取指定人數
-            let results = [];
-            let tempNames = [...names];
-            for (let i = 0; i < drawCount; i++) {
-                const idx = Math.floor(Math.random() * tempNames.length);
-                results.push(tempNames.splice(idx, 1)[0]);
+            // 讀取設定
+            const nameStr = document.getElementById('raw-names').value.trim();
+            const allNames = nameStr.split('\n').filter(n => n.trim() !== '');
+            const count = parseInt(document.getElementById('draw-count').value);
+
+            // 驗證名單
+            if (allNames.length < count) {
+                alert('名單人數不足，請檢查設定。');
+                toggleSettings(); // 自動打開設定頁
+                return;
             }
 
-            display.innerText = results.join('、');
-            isRolling = false;
-        }, 10000); // 10秒
-    }
+            isRolling = true;
+            
+            // 介面切換
+            document.getElementById('ready-mask').style.display = 'block'; // 遮住 READY
+            const output = document.getElementById('name-output');
+            output.classList.add('rolling');
+            output.style.fontSize = currentFontSize + 'px'; // 應用當前字體大小
 
-    // 初始化字體大小
-    updateFontSize(40);
-</script>
+            // 1. 動態滾動動畫 (10秒)
+            let rollTimer = setInterval(() => {
+                const randomName = allNames[Math.floor(Math.random() * allNames.length)];
+                output.innerText = randomName;
+            }, 80);
 
+            // 2. 10秒後停止，顯示最終結果
+            setTimeout(() => {
+                clearInterval(rollTimer);
+                output.classList.remove('rolling');
+                
+                // 抽籤邏輯：隨機打亂並選取前 N 名
+                let shuffled = allNames.sort(() => 0.5 - Math.random());
+                let winners = shuffled.slice(0, count);
+
+                // 顯示結果 (用逗號分隔)
+                output.innerText = winners.join('、');
+                
+                isRolling = false;
+            }, 10000); // 10秒
+        }
+
+        // 頁面載入時初始化
+        window.onload = function() {
+            adjustFontSize(currentFontSize);
+        };
+    </script>
 </body>
 </html>
