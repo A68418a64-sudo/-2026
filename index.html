@@ -1,10 +1,12 @@
-l_code"}
+}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>2026亞護春酒抽獎</title>
+
+<title>春酒抽獎系統</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -13,17 +15,17 @@ l_code"}
 body,html{
 margin:0;
 padding:0;
-height:100%;
 width:100%;
+height:100%;
 overflow:hidden;
-background:black;
 font-family:sans-serif;
+background:black;
 }
 
 .stage{
+width:100%;
+height:100%;
 position:relative;
-width:100vw;
-height:100vh;
 background:url("yahu.jpg.PNG") center/cover no-repeat;
 }
 
@@ -31,22 +33,26 @@ background:url("yahu.jpg.PNG") center/cover no-repeat;
 background:url("ready.jpg.PNG") center/cover no-repeat;
 }
 
+/* 音樂 /
+
 #music-btn{
 position:fixed;
 top:20px;
 right:20px;
 width:55px;
 height:55px;
-border-radius:50%;
 background:black;
 color:white;
+border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:28px;
+font-size:26px;
 cursor:pointer;
 z-index:9999;
 }
+
+/ 設定 /
 
 #setting-btn{
 position:fixed;
@@ -54,16 +60,18 @@ top:20px;
 left:20px;
 width:55px;
 height:55px;
-border-radius:50%;
 background:black;
 color:white;
+border-radius:50%;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:28px;
+font-size:26px;
 cursor:pointer;
 z-index:9999;
 }
+
+/ READY區 /
 
 #ready-btn{
 position:absolute;
@@ -86,6 +94,8 @@ cursor:pointer;
 display:none;
 }
 
+/ 滾動 /
+
 #rolling{
 position:absolute;
 top:0;
@@ -104,6 +114,8 @@ font-size:90px;
 color:white;
 text-shadow:0 0 40px gold;
 }
+
+/ 中獎 /
 
 #winner{
 position:absolute;
@@ -125,6 +137,8 @@ text-shadow:0 0 40px gold;
 margin:10px;
 }
 
+/ 設定面板 /
+
 #setting-panel{
 position:fixed;
 top:0;
@@ -136,7 +150,7 @@ display:none;
 flex-direction:column;
 align-items:center;
 justify-content:center;
-z-index:99999;
+z-index:10000;
 color:white;
 }
 
@@ -148,10 +162,9 @@ padding:10px;
 }
 
 input{
+width:100px;
 font-size:18px;
 padding:5px;
-width:80px;
-text-align:center;
 }
 
 button{
@@ -161,19 +174,22 @@ font-size:18px;
 cursor:pointer;
 }
 
+/ 統計 */
+
 #stats{
 position:fixed;
 bottom:20px;
 left:50%;
 transform:translateX(-50%);
+background:rgba(0,0,0,0.6);
 color:white;
 font-size:22px;
-background:rgba(0,0,0,0.6);
 padding:10px 20px;
 border-radius:10px;
 }
 
 </style>
+
 </head>
 
 <body>
@@ -187,14 +203,14 @@ border-radius:10px;
 <div id="draw-btn"></div>
 
 <div id="rolling">
-<div style="color:#fccd4d;font-size:40px;margin-bottom:40px">
+<div style="font-size:40px;color:#fccd4d;margin-bottom:40px">
 抽獎進行中
 </div>
 <div id="roll-name" class="roll-name"></div>
 </div>
 
 <div id="winner">
-<div style="color:#fccd4d;font-size:40px;margin-bottom:30px">
+<div style="font-size:40px;color:#fccd4d;margin-bottom:30px">
 天選之人
 </div>
 <div id="winner-list"></div>
@@ -203,9 +219,9 @@ border-radius:10px;
 </div>
 
 <div id="stats">
-總人數: <span id="total">0</span> |
-剩餘: <span id="remain">0</span> |
-已抽: <span id="picked">0</span>
+總人數 <span id="total">0</span> |
+剩餘 <span id="remain">0</span> |
+已抽 <span id="picked">0</span>
 </div>
 
 <div id="setting-panel">
@@ -221,7 +237,9 @@ border-radius:10px;
 <p>抽獎次數</p>
 <input id="draw-times" value="1">
 
-<button onclick="saveSettings()">儲存設定</button>
+<br>
+
+<button onclick="saveSettings()">儲存</button>
 
 </div>
 
@@ -233,7 +251,6 @@ border-radius:10px;
 
 let names=[]
 let winners=[]
-
 let drawCount=1
 let drawTimes=1
 
@@ -247,6 +264,7 @@ audio.play()
 let musicOn=true
 
 document.getElementById("music-btn").onclick=function(){
+
 if(musicOn){
 audio.pause()
 this.innerHTML="🔇"
@@ -254,18 +272,28 @@ this.innerHTML="🔇"
 audio.play()
 this.innerHTML="🔊"
 }
+
 musicOn=!musicOn
+
 }
 
 document.getElementById("setting-btn").onclick=function(){
-document.getElementById("setting-panel").style.display="flex"
+
+let panel=document.getElementById("setting-panel")
+
+if(panel.style.display==="flex"){
+panel.style.display="none"
+}else{
+panel.style.display="flex"
+}
+
 }
 
 function saveSettings(){
 
 let text=document.getElementById("name-input").value
 
-names=text.split("\n").filter(n=>n.trim()!="")
+names=text.split("\n").filter(n=>n.trim()!=="")
 
 drawCount=parseInt(document.getElementById("draw-count").value)
 
@@ -302,9 +330,12 @@ document.getElementById("draw-btn").onclick=function(){
 
 if(rolling) return
 
-if(names.length==0){
+if(names.length===0){
+
 alert("沒有剩餘名單")
+
 return
+
 }
 
 rolling=true
@@ -339,7 +370,7 @@ let result=[]
 
 for(let i=0;i<drawCount;i++){
 
-if(names.length==0) break
+if(names.length===0) break
 
 let index=Math.floor(Math.random()*names.length)
 
@@ -352,7 +383,9 @@ winners.push(...result)
 let html=""
 
 result.forEach(function(n){
+
 html+="<div class='win-name'>"+n+"</div>"
+
 })
 
 document.getElementById("winner-list").innerHTML=html
@@ -371,4 +404,6 @@ updateStats()
 
 </script>
 
-</body
+</body>
+
+</htm
