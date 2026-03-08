@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>亞護開發 春酒抽獎系統</title>
+<title>2026 亞護春酒抽獎</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 
 body,html{
+
 margin:0;
 padding:0;
-width:100%;
 height:100%;
+width:100%;
 overflow:hidden;
 background:black;
-font-family:sans-serif;
+
 }
 
-.main-stage{
+/* 主畫面 */
+
+.stage{
 
 position:relative;
 width:100vw;
@@ -30,49 +32,14 @@ height:100vh;
 
 background:url("yahu.jpg.PNG") center/cover no-repeat;
 
-transition:0.5s;
-
 }
+
+/* READY模式 */
 
 .ready-mode{
-background-image:url("ready.jpg.PNG") !important;
-}
 
-/* 按鈕 */
+background:url("ready.jpg.PNG") center/cover no-repeat;
 
-#start-trigger{
-position:absolute;
-width:32%;
-height:12%;
-top:59%;
-left:50%;
-transform:translate(-50%,-50%);
-cursor:pointer;
-z-index:10;
-}
-
-#draw-trigger{
-position:absolute;
-width:22%;
-height:8%;
-top:76%;
-left:50%;
-transform:translate(-50%,-50%);
-cursor:pointer;
-z-index:10;
-display:none;
-}
-
-#admin-trigger{
-position:absolute;
-width:20%;
-height:5%;
-bottom:3%;
-left:50%;
-transform:translateX(-50%);
-cursor:pointer;
-z-index:10;
-display:none;
 }
 
 /* 音樂按鈕 */
@@ -81,36 +48,74 @@ display:none;
 
 position:fixed;
 
-top:20px;
-right:20px;
+top:25px;
+right:25px;
 
-width:50px;
-height:50px;
+width:55px;
+height:55px;
 
 border-radius:50%;
 
 background:rgba(0,0,0,0.7);
 
+color:white;
+
+font-size:28px;
+
 display:flex;
 align-items:center;
 justify-content:center;
 
-color:white;
-font-size:24px;
+z-index:9999;
 
 cursor:pointer;
 
-z-index:999;
+}
+
+/* 隱形按鈕 */
+
+#ready-btn{
+
+position:absolute;
+
+top:52%;
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:40%;
+height:20%;
+
+cursor:pointer;
 
 }
 
-/* 滾動抽獎 */
+#draw-btn{
 
-#rolling-ui{
+position:absolute;
+
+top:75%;
+left:50%;
+
+transform:translate(-50%,-50%);
+
+width:30%;
+height:12%;
+
+cursor:pointer;
+
+display:none;
+
+}
+
+/* 抽獎滾動 */
+
+#rolling{
 
 position:absolute;
 top:0;
 left:0;
+
 width:100%;
 height:100%;
 
@@ -118,31 +123,34 @@ background:rgba(0,0,0,0.9);
 
 display:none;
 
-flex-direction:column;
 align-items:center;
 justify-content:center;
 
-z-index:20;
+flex-direction:column;
+
+z-index:50;
 
 }
 
-.rolling-name{
+.roll-name{
 
 font-size:90px;
-color:white;
-font-weight:bold;
 
-text-shadow:0 0 40px #fccd4d;
+color:white;
+
+text-shadow:0 0 40px gold;
 
 }
 
 /* 中獎 */
 
-#winner-ui{
+#winner{
 
 position:absolute;
+
 top:0;
 left:0;
+
 width:100%;
 height:100%;
 
@@ -150,23 +158,22 @@ background:rgba(0,0,0,0.9);
 
 display:none;
 
-flex-direction:column;
 align-items:center;
 justify-content:center;
 
-z-index:30;
+flex-direction:column;
+
+z-index:60;
 
 }
 
-.winner-name{
+.win-name{
 
 font-size:100px;
+
 color:white;
-font-weight:bold;
 
-text-shadow:0 0 50px gold;
-
-text-align:center;
+text-shadow:0 0 60px gold;
 
 }
 
@@ -177,31 +184,29 @@ text-align:center;
 
 <div id="music-btn">🔊</div>
 
-<div class="main-stage" id="stage">
+<div id="stage" class="stage">
 
-<div id="start-trigger" onclick="goToReady()"></div>
+<div id="ready-btn"></div>
 
-<div id="draw-trigger" onclick="runLottery()"></div>
+<div id="draw-btn"></div>
 
-<div id="admin-trigger"></div>
+<div id="rolling">
 
-<div id="rolling-ui">
-
-<div style="color:#fccd4d;font-size:32px;margin-bottom:40px;">
+<div style="color:#fccd4d;font-size:40px;margin-bottom:40px">
 抽獎進行中
 </div>
 
-<div id="rolling-name" class="rolling-name"></div>
+<div id="roll-name" class="roll-name"></div>
 
 </div>
 
-<div id="winner-ui" onclick="reset()">
+<div id="winner">
 
-<div style="color:#fccd4d;font-size:40px;margin-bottom:20px;">
+<div style="color:#fccd4d;font-size:40px;margin-bottom:30px">
 天選之人
 </div>
 
-<div id="winner-name" class="winner-name"></div>
+<div id="winner-name" class="win-name"></div>
 
 </div>
 
@@ -215,18 +220,15 @@ text-align:center;
 
 <script>
 
-let rolling=false
-let timer
-
-let musicOn=true
-
 const audio=document.getElementById("bgm")
 
 const musicBtn=document.getElementById("music-btn")
 
-/* 音樂控制 */
+let musicOn=true
 
-musicBtn.onclick=function(){
+/* 音樂按鈕 */
+
+musicBtn.onclick=()=>{
 
 if(musicOn){
 
@@ -245,33 +247,15 @@ musicOn=!musicOn
 
 }
 
-/* 第一次點擊解鎖音訊 */
+/* READY */
 
-document.body.addEventListener("click",function(){
-
-if(audio.paused && musicOn){
-
-audio.play().catch(()=>{})
-
-}
-
-},{once:true})
-
-/* 進入抽獎畫面 */
-
-function goToReady(){
-
-document.getElementById("start-trigger").style.display="none"
+document.getElementById("ready-btn").onclick=()=>{
 
 document.getElementById("stage").classList.add("ready-mode")
 
-document.getElementById("draw-trigger").style.display="block"
+document.getElementById("draw-btn").style.display="block"
 
-if(musicOn){
-
-audio.play().catch(()=>{})
-
-}
+audio.play()
 
 }
 
@@ -279,29 +263,32 @@ audio.play().catch(()=>{})
 
 let names=[]
 
-function runLottery(){
+let rolling=false
+let timer
+
+document.getElementById("draw-btn").onclick=()=>{
 
 if(rolling) return
 
 if(names.length==0){
 
-let text=prompt("輸入名單 (用逗號分隔)")
+let input=prompt("輸入抽獎名單，用逗號分隔")
 
-if(!text) return
+if(!input) return
 
-names=text.split(",")
+names=input.split(",")
 
 }
 
 rolling=true
 
-document.getElementById("rolling-ui").style.display="flex"
+document.getElementById("rolling").style.display="flex"
 
 timer=setInterval(()=>{
 
 let name=names[Math.floor(Math.random()*names.length)]
 
-document.getElementById("rolling-name").innerText=name
+document.getElementById("roll-name").innerText=name
 
 },60)
 
@@ -313,7 +300,7 @@ rolling=false
 
 showWinner()
 
-},7000)
+},6000)
 
 }
 
@@ -321,29 +308,23 @@ showWinner()
 
 function showWinner(){
 
-document.getElementById("rolling-ui").style.display="none"
+document.getElementById("rolling").style.display="none"
 
 let index=Math.floor(Math.random()*names.length)
 
-let winner=names.splice(index,1)
+let win=names.splice(index,1)
 
-document.getElementById("winner-name").innerText=winner
+document.getElementById("winner-name").innerText=win
 
-document.getElementById("winner-ui").style.display="flex"
+document.getElementById("winner").style.display="flex"
 
 confetti({
+
 particleCount:250,
-spread:100,
+spread:120,
 origin:{y:0.6}
+
 })
-
-}
-
-/* 重置 */
-
-function reset(){
-
-document.getElementById("winner-ui").style.display="none"
 
 }
 
