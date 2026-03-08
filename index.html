@@ -6,124 +6,123 @@
     <title>亞護開發 2026</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
         
-        /* 背景：直接使用您最完整的第一張圖 (IMG_0022.jpg) */
-        .stage {
+        /* 1. 背景：使用空白紅框圖 (IMG_0026) */
+        .game-canvas {
             position: relative; width: 100vw; height: 100vh;
-            background: url('ready.jpg.PNG') center/contain no-repeat; /* 這裡請確認檔名是否為 ready.jpg.PNG */
+            background: url('bg-main.jpg.JPG') center/contain no-repeat;
         }
 
-        /* 紅框動態區：疊加在背景紅框之上 */
-        .lotto-container {
+        /* 2. 顯示區：負責 Ready 字樣 與 抽獎名單 */
+        .display-area {
             position: absolute; top: 62%; left: 50%; transform: translate(-50%, -50%);
-            width: 50%; height: 25%; display: flex; align-items: center; justify-content: center; z-index: 10;
-        }
-        #display-text {
-            color: #FFFFFF; font-size: 80px; font-weight: 900; text-align: center;
-            text-shadow: 0 0 20px rgba(252, 205, 77, 0.8), 2px 2px 5px #000;
-            line-height: 1.2;
+            width: 45%; height: 22%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10;
         }
 
-        /* 透明按鈕：對準背景圖的「開始抽獎」按鈕位置 */
-        #btn-start {
-            position: absolute; top: 76%; left: 50%; transform: translate(-50%, -50%);
-            width: 250px; height: 70px; cursor: pointer; z-index: 20;
-            /* background: rgba(255,0,0,0.3); */ /* 測試時可取消註解看位置是否準確 */
+        /* Ready 字樣樣式：模擬您原始設計的質感 */
+        #ready-text {
+            color: #C0C0C0; font-size: 80px; font-weight: 900; text-align: center;
+            line-height: 1; letter-spacing: 5px; text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        #ready-sub { font-size: 36px; color: #C0C0C0; margin-top: 5px; font-weight: bold; }
+
+        /* 抽獎名單樣式：預設隱藏，開始後才出現 */
+        #rolling-names {
+            display: none; color: #FFFFFF; font-weight: 900; text-align: center;
+            text-shadow: 0 0 15px rgba(252, 205, 77, 0.8); line-height: 1.1;
         }
 
-        /* 透明設定入口：對準背景圖最下方的「系統設定」圖示 */
-        #btn-admin-gate {
-            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
-            width: 120px; height: 40px; cursor: pointer; z-index: 20;
-            /* border: 1px solid lime; */ /* 測試用 */
-        }
+        /* 3. 透明感應區：開始按鈕與設定按鈕 */
+        #start-btn { position: absolute; top: 76.5%; left: 50%; transform: translate(-50%, -50%); width: 240px; height: 60px; cursor: pointer; z-index: 20; }
+        #admin-btn { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 160px; height: 40px; cursor: pointer; z-index: 20; }
 
-        /* 系統設定面板：採用您提供的 IMG_0036 深色風格 */
+        /* 後台面板 (IMG_0036) */
         #admin-panel {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(42, 16, 16, 0.98); z-index: 999; display: none; color: #fff; padding: 30px; box-sizing: border-box;
         }
-        .form-item { margin-bottom: 20px; }
-        textarea, input { width: 100%; padding: 12px; background: #4D2626; border: 1px solid #633; color: #fff; border-radius: 8px; font-size: 18px; box-sizing: border-box; }
+        textarea, input { width: 100%; padding: 12px; background: #4D2626; border: 1px solid #633; color: #fff; border-radius: 8px; font-size: 18px; margin-bottom: 15px; }
         .save-btn { width: 100%; background: #FCCD4D; color: #311; padding: 15px; border: none; font-weight: bold; font-size: 20px; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="stage">
-        <div class="lotto-container">
-            <div id="display-text">READY</div>
+    <div class="game-canvas">
+        <div class="display-area">
+            <div id="ready-group">
+                <div id="ready-text">READY</div>
+                <div id="ready-sub">準備開獎</div>
+            </div>
+            <div id="rolling-names"></div>
         </div>
 
-        <div id="btn-start" onclick="startLotto()"></div>
-        <div id="btn-admin-gate" onclick="openAdmin()"></div>
+        <div id="start-btn" onclick="startRolling()"></div>
+        <div id="admin-btn" onclick="toggleSettings()"></div>
     </div>
 
     <div id="admin-panel">
         <h2 style="color: #FCCD4D;">⚙️ 抽獎控制面板</h2>
-        <div class="form-item">
-            <label>抽獎名單 (一人一行)</label>
-            <textarea id="name-list" rows="12" placeholder="請貼入名單..."></textarea>
-        </div>
-        <div class="form-item">
-            <label>單次抽出人數</label>
-            <input type="number" id="per-draw" value="1">
-        </div>
-        <button class="save-btn" onclick="saveSettings()">儲存設定並返回</button>
-        <button class="save-btn" style="background:transparent; color:#fff; margin-top:10px;" onclick="closeAdmin()">取消</button>
+        <label>抽獎名單 (一人一行)</label>
+        <textarea id="names-box" rows="10"></textarea>
+        <label>單次抽出人數</label>
+        <input type="number" id="count-box" value="1">
+        <label>顯示字體大小 (例如 60px)</label>
+        <input type="text" id="size-box" value="60px">
+        <button class="save-btn" onclick="saveData()">儲存並返回遊戲</button>
     </div>
 
-    <audio id="bg-m" src="music.mp3.m4a"></audio>
+    <audio id="audio" src="music.mp3.m4a"></audio>
 
     <script>
-        let isRolling = false;
-        let rollTimer;
-        let config = { names: [], per: 1 };
-        const audio = document.getElementById('bg-m');
+        let isRunning = false;
+        let pool = { names: [], per: 1, size: "60px" };
+        const audio = document.getElementById('audio');
 
-        function openAdmin() { document.getElementById('admin-panel').style.display = 'block'; }
-        function closeAdmin() { document.getElementById('admin-panel').style.display = 'none'; }
-
-        function saveSettings() {
-            config.names = document.getElementById('name-list').value.split('\n').filter(n => n.trim() !== "");
-            config.per = parseInt(document.getElementById('per-draw').value);
-            closeAdmin();
+        function toggleSettings() {
+            const el = document.getElementById('admin-panel');
+            el.style.display = el.style.display === 'block' ? 'none' : 'block';
         }
 
-        function startLotto() {
-            if (config.names.length === 0) { alert("請先點擊下方『系統設定』輸入名單"); return; }
-            if (isRolling) return;
+        function saveData() {
+            pool.names = document.getElementById('names-box').value.split('\n').filter(n => n.trim() !== "");
+            pool.per = parseInt(document.getElementById('count-box').value);
+            pool.size = document.getElementById('size-box').value;
+            document.getElementById('rolling-names').style.fontSize = pool.size;
+            toggleSettings();
+        }
 
-            isRolling = true;
+        function startRolling() {
+            if (pool.names.length === 0) { alert("請先進入系統設定貼入名單"); return; }
+            if (isRunning) return;
+
+            isRunning = true;
             audio.play();
 
-            // 7 秒拉霸滾輪效果
-            rollTimer = setInterval(() => {
-                document.getElementById('display-text').innerText = config.names[Math.floor(Math.random() * config.names.length)];
-                document.getElementById('display-text').style.fontSize = "80px";
+            // 關鍵動作：隱藏 READY，顯示名單區
+            document.getElementById('ready-group').style.display = 'none';
+            document.getElementById('rolling-names').style.display = 'block';
+
+            // 7 秒滾動
+            const timer = setInterval(() => {
+                document.getElementById('rolling-names').innerText = pool.names[Math.floor(Math.random() * pool.names.length)];
             }, 50);
 
             setTimeout(() => {
-                clearInterval(rollTimer);
-                isRolling = false;
+                clearInterval(timer);
+                isRunning = false;
                 
-                // 抽出指定人數
                 let winners = [];
-                for(let i=0; i < config.per; i++) {
-                    if(config.names.length > 0) {
-                        let idx = Math.floor(Math.random() * config.names.length);
-                        winners.push(config.names.splice(idx, 1)[0]);
+                for(let i=0; i < pool.per; i++) {
+                    if(pool.names.length > 0) {
+                        let idx = Math.floor(Math.random() * pool.names.length);
+                        winners.push(pool.names.splice(idx, 1)[0]);
                     }
                 }
 
-                // 顯示中獎名單，如果人數多則縮小字體
-                const display = document.getElementById('display-text');
-                display.innerHTML = winners.join('<br>');
-                display.style.fontSize = winners.length > 10 ? "24px" : (winners.length > 5 ? "36px" : "60px");
-                
+                document.getElementById('rolling-names').innerHTML = winners.join('<br>');
                 confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
-            }, 7000); // 準確 7 秒
+            }, 7000); // 準時 7 秒
         }
     </script>
 </body>
