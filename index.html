@@ -1,9 +1,11 @@
+_2026"}
 <!DOCTYPE html>
-
 <html lang="zh-TW">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <title>亞護開發 2026 春酒抽獎</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -20,25 +22,23 @@ font-family:sans-serif;
 background:black;
 }
 
-/* 主畫面背景 */
-
 .stage{
-position:fixed;
-top:0;
-left:0;
-width:100%;
+position:relative;
+width:100vw;
 height:100vh;
 background:url("yahu.jpg") center/cover no-repeat;
 }
+
+/* READY 畫面 /
 
 .stage.ready{
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 左上資訊 */
+/ 左上 HUD /
 
 .hud{
-position:fixed;
+position:absolute;
 top:30px;
 left:40px;
 color:#f2d089;
@@ -47,10 +47,10 @@ line-height:36px;
 display:none;
 }
 
-/* 右上控制 */
+/ 右上功能 /
 
 .topbar{
-position:fixed;
+position:absolute;
 top:25px;
 right:35px;
 display:flex;
@@ -63,7 +63,7 @@ color:white;
 cursor:pointer;
 }
 
-/* 開始按鈕 */
+/ 開始按鈕 /
 
 .start-btn{
 position:absolute;
@@ -75,7 +75,7 @@ height:90px;
 cursor:pointer;
 }
 
-/* READY 畫面 */
+/ READY 區 /
 
 .ready-panel{
 position:absolute;
@@ -107,10 +107,10 @@ background:#f2b63d;
 cursor:pointer;
 }
 
-/* 抽獎動畫 */
+/ 抽獎動畫 /
 
 .rolling{
-position:fixed;
+position:absolute;
 top:0;
 left:0;
 width:100%;
@@ -128,10 +128,10 @@ font-size:120px;
 text-shadow:0 0 40px gold;
 }
 
-/* 得獎畫面 */
+/ 得獎 /
 
 .winner{
-position:fixed;
+position:absolute;
 top:0;
 left:0;
 width:100%;
@@ -144,22 +144,12 @@ flex-direction:column;
 color:white;
 }
 
-.winner-title{
-font-size:36px;
-margin-bottom:30px;
-}
-
 .winner-name{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:20px 120px;
-text-align:center;
-font-size:80px;
-text-shadow:0 0 40px gold;
-max-width:80%;
+font-size:140px;
+text-shadow:0 0 50px gold;
 }
 
-/* 系統設定 */
+/ 設定 */
 
 .admin{
 position:fixed;
@@ -198,49 +188,75 @@ cursor:pointer;
 
 <div class="stage" id="stage">
 
+<!-- 左上資訊 -->
+
 <div class="hud" id="hud">
+
 <div>👥 參與人數：<span id="total">0</span></div>
 <div>🎯 已抽人數：<span id="drawn">0</span></div>
 <div>📉 剩餘人數：<span id="remain">0</span></div>
+
 </div>
 
+<!-- 右上 -->
+
 <div class="topbar">
+
 <div onclick="toggleMusic()" id="musicBtn">🔊</div>
 <div onclick="openAdmin()">⚙</div>
+
 </div>
+
+<!-- 第一畫面 -->
 
 <div class="start-btn" onclick="startGame()"></div>
 
+<!-- READY 畫面 -->
+
 <div class="ready-panel" id="readyPanel">
+
 <div class="ready-title">READY</div>
 <div class="ready-sub">準備開獎</div>
+
 <button class="draw-btn" onclick="startLottery()">開始抽獎</button>
+
 </div>
+
+<!-- 抽獎 -->
 
 <div class="rolling" id="rolling">
+
 <div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
+
 <div id="rollingName" class="rolling-name"></div>
+
 </div>
+
+<!-- 得獎 -->
 
 <div class="winner" id="winner" onclick="closeWinner()">
-<div class="winner-title">🎉 天選之人 🎉</div>
+
+<div style="font-size:30px;margin-bottom:30px">🎉 天選之人 🎉</div>
+
 <div id="winnerName" class="winner-name"></div>
+
 </div>
 
 </div>
+
+<!-- 設定 -->
 
 <div class="admin" id="admin">
 
 <h2>抽獎系統設定</h2>
 
 <p>參與名單 (一行一人)</p>
+
 <textarea id="names" rows="10"></textarea>
 
 <p>一次抽幾人</p>
-<input id="perDraw" type="number" value="1">
 
-<p>得獎名單字體大小</p>
-<input id="fontSize" type="number" value="80">
+<input id="perDraw" type="number" value="1">
 
 <button onclick="saveAdmin()">儲存</button>
 
@@ -254,7 +270,6 @@ let names=[]
 let total=0
 let drawn=0
 let perDraw=1
-let winnerFontSize=80
 
 const audio=document.getElementById("bgm")
 
@@ -275,17 +290,23 @@ audio.play()
 function toggleMusic(){
 
 if(audio.paused){
+
 audio.play()
 document.getElementById("musicBtn").innerText="🔊"
+
 }else{
+
 audio.pause()
 document.getElementById("musicBtn").innerText="🔇"
+
 }
 
 }
 
 function openAdmin(){
+
 document.getElementById("admin").style.display="block"
+
 }
 
 function saveAdmin(){
@@ -295,11 +316,6 @@ names=document.getElementById("names").value
 .filter(n=>n.trim()!="")
 
 perDraw=parseInt(document.getElementById("perDraw").value)
-
-winnerFontSize=parseInt(document.getElementById("fontSize").value)
-
-document.getElementById("winnerName").style.fontSize=
-winnerFontSize+"px"
 
 total=names.length
 drawn=0
@@ -323,8 +339,10 @@ document.getElementById("remain").innerText=remain
 function startLottery(){
 
 if(names.length==0){
+
 alert("請先設定名單")
 return
+
 }
 
 document.getElementById("rolling").style.display="flex"
@@ -369,13 +387,7 @@ drawn++
 
 updateHud()
 
-let html=""
-
-winners.forEach(name=>{
-html+="<div>"+name+"</div>"
-})
-
-document.getElementById("winnerName").innerHTML=html
+document.getElementById("winnerName").innerText=winners.join("\n")
 
 document.getElementById("winner").style.display="flex"
 
@@ -388,10 +400,11 @@ origin:{y:0.6}
 }
 
 function closeWinner(){
+
 document.getElementById("winner").style.display="none"
+
 }
 
 </script>
 
 </body>
-</html>
