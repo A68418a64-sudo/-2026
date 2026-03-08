@@ -2,138 +2,142 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>亞護開發 2026 抽獎系統</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>亞護開發 2026 抽獎</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; }
         
-        /* Layer 1: 主背景圖 (紅框空白版) */
-        .main-bg {
+        /* 使用您最完整的那張圖 (包含 2026, SIGMABED 字樣的) */
+        .main-container {
             position: relative; width: 100vw; height: 100vh;
-            background: url('bg-main.jpg.JPG') center/contain no-repeat;
+            background: url('IMG_0028.jpg') center/contain no-repeat;
         }
 
-        /* 內容顯示容器 (對準 READY 框座標) */
-        .content-overlay {
-            position: absolute; 
-            top: 48%; left: 50%; transform: translate(-50%, -50%);
-            width: 45%; height: 25%;
-            display: flex; align-items: center; justify-content: center; z-index: 10;
+        /* 紅框互動區：根據您的座標規格 (X:340, Y:310, 寬:580, 高:240) */
+        /* 這裡調整為相對比例以符合不同螢幕 */
+        .slot-machine-zone {
+            position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%);
+            width: 45%; height: 28%; display: flex; align-items: center; justify-content: center; z-index: 10;
         }
 
-        /* Layer 2: READY 框 (可隱藏) */
-        #ready-layer {
-            text-align: center; color: #C0C0C0; cursor: default;
-        }
-        .ready-main { font-size: 90px; font-weight: 900; letter-spacing: 8px; line-height: 1; }
-        .ready-sub { font-size: 36px; margin-top: 10px; font-weight: bold; }
+        /* READY 層：初始顯示，開始後 hidden */
+        #ready-layer { text-align: center; }
+        .ready-title { color: #D4D4D4; font-size: 85px; font-weight: 900; letter-spacing: 5px; margin: 0; }
+        .ready-subtitle { color: #D4D4D4; font-size: 32px; font-weight: bold; margin-top: -10px; }
 
-        /* Layer 3 & 4: 抽獎動畫與結果 */
+        /* 名單滾動層：初始隱藏 */
         #lotto-layer {
             display: none; color: #FFFFFF; font-weight: 900; text-align: center;
-            text-shadow: 0 0 20px rgba(252, 205, 77, 0.8); line-height: 1.1;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7); line-height: 1.1;
         }
 
-        /* 功能按鈕感應區 (根據 Hotspot 規格設定) */
-        #btn-start { position: absolute; top: 76.5%; left: 50%; transform: translate(-50%, -50%); width: 240px; height: 70px; cursor: pointer; z-index: 20; }
-        #btn-setting { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); width: 150px; height: 40px; cursor: pointer; z-index: 20; }
+        /* 透明按鈕：對準「開始抽獎」金色按鈕 */
+        #start-hotspot {
+            position: absolute; top: 76.5%; left: 50%; transform: translate(-50%, -50%);
+            width: 20%; height: 8%; cursor: pointer; z-index: 20;
+        }
 
-        /* Layer 5: 系統設定面板 (IMG_0036 風格) */
-        #admin-panel {
+        /* 透明按鈕：對準最下方的「系統設定」文字 */
+        #setting-hotspot {
+            position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%);
+            width: 120px; height: 40px; cursor: pointer; z-index: 20;
+        }
+
+        /* 系統設定面板 (IMG_0036 風格) */
+        #admin-modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(42, 16, 16, 0.98); z-index: 999; display: none; color: #fff; padding: 30px; box-sizing: border-box;
+            background: rgba(30, 10, 10, 0.95); z-index: 100; display: none; color: #fff; padding: 40px; box-sizing: border-box;
         }
-        .form-group { margin-bottom: 15px; }
-        textarea, input { width: 100%; padding: 12px; background: #4D2626; border: 1px solid #633; color: #fff; border-radius: 8px; font-size: 18px; }
-        .save-btn { width: 100%; background: #FCCD4D; color: #311; padding: 15px; border: none; font-weight: bold; font-size: 20px; border-radius: 10px; cursor: pointer; margin-top: 10px; }
+        .field { margin-bottom: 20px; }
+        textarea, input { width: 100%; padding: 15px; background: #3d1c1c; border: 1px solid #5c3232; color: #fff; border-radius: 8px; font-size: 18px; }
+        .save-btn { width: 100%; background: #FCCD4D; color: #311; padding: 18px; border: none; font-weight: bold; font-size: 22px; border-radius: 12px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="main-bg">
-        <div class="content-overlay">
+    <div class="main-container">
+        <div class="slot-machine-zone">
             <div id="ready-layer">
-                <div class="ready-main">READY</div>
-                <div class="ready-sub">準備開獎</div>
+                <p class="ready-title">READY</p>
+                <p class="ready-subtitle">準備開獎</p>
             </div>
             <div id="lotto-layer"></div>
         </div>
 
-        <div id="btn-start" onclick="executeDraw()"></div>
-        <div id="btn-setting" onclick="togglePanel()"></div>
+        <div id="start-hotspot" onclick="runLottery()"></div>
+        <div id="setting-hotspot" onclick="toggleModal()"></div>
     </div>
 
-    <div id="admin-panel">
+    <div id="admin-modal">
         <h2 style="color: #FCCD4D;">⚙️ 抽獎控制面板</h2>
-        <div class="form-group">
-            <label>抽獎名單 (一人一行)</label>
-            <textarea id="list-input" rows="10"></textarea>
+        <div class="field">
+            <label>匯入抽獎名單 (一人一行)</label>
+            <textarea id="name-list" rows="10" placeholder="王大明&#10;李小華..."></textarea>
         </div>
-        <div class="form-group">
+        <div class="field">
             <label>單次抽出人數</label>
-            <input type="number" id="count-input" value="1">
+            <input type="number" id="pick-count" value="1">
         </div>
-        <div class="form-group">
-            <label>名單字體大小 (例如: 60px)</label>
-            <input type="text" id="size-input" value="60px">
+        <div class="field">
+            <label>得獎名單字體大小 (例如: 60px)</label>
+            <input type="text" id="font-size-val" value="60px">
         </div>
-        <button class="save-btn" onclick="applySettings()">儲存並返回</button>
-        <button class="save-btn" style="background:transparent; color:#fff; border:1px solid #fff;" onclick="togglePanel()">取消</button>
+        <button class="save-btn" onclick="saveSettings()">💾 儲存設定並返回</button>
     </div>
 
-    <audio id="bgm" src="music.mp3.m4a"></audio>
+    <audio id="sfx" src="music.mp3.m4a"></audio>
 
     <script>
-        let rolling = false;
-        let settings = { names: [], per: 1, size: "60px" };
-        const bgm = document.getElementById('bgm');
+        let isActive = false;
+        let data = { names: [], count: 1, size: "60px" };
+        const sfx = document.getElementById('sfx');
 
-        function togglePanel() {
-            const panel = document.getElementById('admin-panel');
-            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        function toggleModal() {
+            const m = document.getElementById('admin-modal');
+            m.style.display = m.style.display === 'block' ? 'none' : 'block';
         }
 
-        function applySettings() {
-            settings.names = document.getElementById('list-input').value.split('\n').filter(n => n.trim() !== "");
-            settings.per = parseInt(document.getElementById('count-input').value);
-            settings.size = document.getElementById('size-input').value;
-            document.getElementById('lotto-layer').style.fontSize = settings.size;
-            togglePanel();
+        function saveSettings() {
+            data.names = document.getElementById('name-list').value.split('\n').filter(n => n.trim() !== "");
+            data.count = parseInt(document.getElementById('pick-count').value);
+            data.size = document.getElementById('font-size-val').value;
+            document.getElementById('lotto-layer').style.fontSize = data.size;
+            toggleModal();
         }
 
-        function executeDraw() {
-            if (settings.names.length === 0) { alert("請先進入系統設定輸入名單"); return; }
-            if (rolling) return;
+        function runLottery() {
+            if (data.names.length === 0) { alert("請點擊下方『系統設定』匯入名單"); return; }
+            if (isActive) return;
 
-            rolling = true;
-            bgm.play();
+            isActive = true;
+            sfx.play();
 
-            // 1. 隱藏 READY 框 (Layer 2)
+            // 1. 隱藏 READY 框
             document.getElementById('ready-layer').style.display = 'none';
-            // 2. 顯示並啟動抽獎動畫 (Layer 3)
-            const lottoView = document.getElementById('lotto-layer');
-            lottoView.style.display = 'block';
+            // 2. 啟動抽獎動畫
+            const display = document.getElementById('lotto-layer');
+            display.style.display = 'block';
 
-            const timer = setInterval(() => {
-                lottoView.innerText = settings.names[Math.floor(Math.random() * settings.names.length)];
+            const cycle = setInterval(() => {
+                display.innerText = data.names[Math.floor(Math.random() * data.names.length)];
             }, 50);
 
-            // 3. 7 秒後停止並顯示結果 (Layer 4)
+            // 3. 7 秒後顯示中獎人
             setTimeout(() => {
-                clearInterval(timer);
-                rolling = false;
+                clearInterval(cycle);
+                isActive = false;
                 
                 let winners = [];
-                for(let i=0; i < settings.per; i++) {
-                    if(settings.names.length > 0) {
-                        let idx = Math.floor(Math.random() * settings.names.length);
-                        winners.push(settings.names.splice(idx, 1)[0]);
+                for(let i=0; i < data.count; i++) {
+                    if(data.names.length > 0) {
+                        let idx = Math.floor(Math.random() * data.names.length);
+                        winners.push(data.names.splice(idx, 1)[0]);
                     }
                 }
 
-                lottoView.innerHTML = winners.join('<br>');
-                confetti({ particleCount: 200, spread: 90, origin: { y: 0.6 } });
+                display.innerHTML = winners.join('<br>');
+                confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
             }, 7000); // 嚴格 7 秒
         }
     </script>
