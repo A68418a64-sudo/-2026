@@ -26,15 +26,16 @@ position:relative;
 width:100vw;
 height:100vh;
 background:url("yahu.jpg.PNG") center/cover no-repeat;
+transition:0.5s;
 }
 
 /* READY 畫面 */
 
 .ready{
-background:url("ready.jpg.PNG") center/cover no-repeat !important;
+background:url("ready.jpg.JPG") center/cover no-repeat !important;
 }
 
-/* 第一頁開始按鈕 */
+/* 第一頁開始 */
 
 #startBtn{
 position:absolute;
@@ -128,6 +129,8 @@ text-align:center;
 
 </div>
 
+<audio id="bgm" src="music.mp3.m4a" loop></audio>
+
 <script>
 
 let names=[
@@ -151,8 +154,9 @@ const rollingUI=document.getElementById("rolling")
 const rollingName=document.getElementById("rollingName")
 const winnerUI=document.getElementById("winner")
 const winnerName=document.getElementById("winnerName")
+const audio=document.getElementById("bgm")
 
-/* 第一頁 → READY */
+/* 第一畫面 → READY */
 
 startBtn.onclick=function(){
 
@@ -161,6 +165,8 @@ stage.classList.add("ready")
 startBtn.style.display="none"
 
 drawBtn.style.display="block"
+
+audio.play()
 
 }
 
