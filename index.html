@@ -30,7 +30,29 @@
             background-image: url('ready.jpg.PNG') !important;
         }
 
-        /* 點擊區域調整 */
+        /* 統計資訊顯示 (左下方) */
+        #stat-info {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            background: rgba(0,0,0,0.5);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            z-index: 40;
+            line-height: 1.6;
+            pointer-events: none; /* 防止擋到點擊 */
+        }
+
+        .stat-num {
+            color: #fccd4d;
+            font-weight: bold;
+            font-size: 22px;
+            margin: 0 5px;
+        }
+
+        /* 按鈕區域 */
         #start-trigger {
             position: absolute;
             width: 32%; height: 12%;
@@ -50,19 +72,15 @@
             display: none;
         }
 
-        /* 實體齒輪設定按鈕 - 解決點不到的問題 */
         #settings-btn {
             position: absolute;
             top: 20px;
             left: 20px;
-            width: 44px;
-            height: 44px;
+            width: 44px; height: 44px;
             background: rgba(0, 0, 0, 0.4);
             color: white;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             cursor: pointer;
             z-index: 60;
             font-size: 24px;
@@ -71,8 +89,7 @@
 
         #music-btn {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 20px; right: 20px;
             background: rgba(0, 0, 0, 0.4);
             color: white;
             padding: 10px 15px;
@@ -83,51 +100,24 @@
             border: 1px solid rgba(255,255,255,0.2);
         }
 
-        /* 抽獎滾動 UI */
-        #rolling-ui {
+        /* 抽獎與得獎 UI */
+        #rolling-ui, #winner-ui {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 20;
         }
 
-        .rolling-name {
-            font-size: 90px;
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 0 40px #fccd4d;
-        }
+        #rolling-ui { background: rgba(0, 0, 0, 0.85); z-index: 20; }
+        #winner-ui { background: rgba(0, 0, 0, 0.9); z-index: 25; cursor: pointer; }
 
-        /* 得獎畫面 */
-        #winner-ui {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            z-index: 25;
-            cursor: pointer;
-        }
+        .rolling-name { font-size: 90px; color: white; font-weight: bold; text-shadow: 0 0 40px #fccd4d; }
+        .winner-name { font-size: 100px; color: white; font-weight: bold; text-shadow: 0 0 50px #fccd4d; text-align: center; white-space: pre-wrap; }
 
-        .winner-name {
-            font-size: 100px;
-            color: white;
-            font-weight: bold;
-            text-shadow: 0 0 50px #fccd4d;
-            text-align: center;
-            line-height: 1.2;
-            white-space: pre-wrap; /* 支援換行 */
-        }
-
-        /* 設定面板 - iPad 優化 */
+        /* 設定面板 */
         #admin-panel {
             position: fixed;
             top: 0; left: 0;
@@ -141,41 +131,20 @@
             overflow-y: auto;
         }
 
-        .admin-content {
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .admin-input {
-            width: 100%;
-            background: #222;
-            border: 1px solid #444;
-            color: white;
-            padding: 12px;
-            margin: 10px 0 20px 0;
-            font-size: 16px;
-            border-radius: 8px;
-            box-sizing: border-box;
-        }
-
-        .save-btn {
-            background: #fccd4d;
-            border: none;
-            color: black;
-            padding: 18px;
-            font-weight: bold;
-            border-radius: 8px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 18px;
-        }
-
+        .admin-content { max-width: 600px; margin: 0 auto; }
+        .admin-input { width: 100%; background: #222; border: 1px solid #444; color: white; padding: 12px; margin: 10px 0 20px 0; font-size: 16px; border-radius: 8px; box-sizing: border-box; }
+        .save-btn { background: #fccd4d; border: none; color: black; padding: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; }
     </style>
 </head>
 
 <body>
 
     <div class="main-stage" id="stage">
+        <div id="stat-info">
+            剩餘人數：<span id="count-remain" class="stat-num">0</span><br>
+            已抽人數：<span id="count-pulled" class="stat-num">0</span>
+        </div>
+
         <div id="settings-btn" onclick="showAdmin()"><i class="fas fa-cog"></i></div>
         <div id="music-btn" onclick="toggleMusic()">🔊</div>
 
@@ -204,10 +173,11 @@
             <label>單次抽出人數</label>
             <input type="number" id="admin-per" class="admin-input" value="1" min="1">
 
-            <label>得獎字體大小 (例如: 80px 或 5vw)</label>
+            <label>得獎字體大小</label>
             <input type="text" id="admin-size" class="admin-input" value="80px">
 
-            <button class="save-btn" onclick="hideAdmin()">儲存並關閉</button>
+            <button class="save-btn" onclick="hideAdmin()">儲存並重設進度</button>
+            <p style="font-size: 13px; color: #888; margin-top: 10px; text-align: center;">* 儲存會根據新名單重置「已抽人數」</p>
         </div>
     </div>
 
@@ -217,6 +187,7 @@
         let rolling = false;
         let timer;
         let musicOn = true;
+        let pulledCount = 0; // 追蹤已抽人數
 
         let config = {
             names: [],
@@ -225,6 +196,12 @@
         };
 
         const audio = document.getElementById("bgm");
+
+        // 更新畫面上的統計數字
+        function updateStatUI() {
+            document.getElementById("count-remain").innerText = config.names.length;
+            document.getElementById("count-pulled").innerText = pulledCount;
+        }
 
         function toggleMusic() {
             if (musicOn) {
@@ -238,12 +215,10 @@
         }
 
         function showAdmin() {
-            // 開啟面板前，同步目前的文字框內容
             document.getElementById("admin-panel").style.display = "block";
         }
 
         function hideAdmin() {
-            // 儲存設定
             config.names = document.getElementById("admin-names").value
                 .split("\n")
                 .map(n => n.trim())
@@ -251,6 +226,10 @@
 
             config.perDraw = parseInt(document.getElementById("admin-per").value) || 1;
             config.fontSize = document.getElementById("admin-size").value;
+            
+            // 重新輸入名單時，將已抽人數歸零
+            pulledCount = 0; 
+            updateStatUI();
 
             document.getElementById("admin-panel").style.display = "none";
         }
@@ -259,17 +238,14 @@
             document.getElementById("start-trigger").style.display = "none";
             document.getElementById("stage").classList.add("ready-mode");
             document.getElementById("draw-trigger").style.display = "block";
-            
-            if (musicOn) {
-                audio.currentTime = 0;
-                audio.play();
-            }
+            updateStatUI(); // 進入準備畫面時更新一次
+            if (musicOn) { audio.currentTime = 0; audio.play(); }
         }
 
         function runLottery() {
             if (rolling) return;
             if (config.names.length === 0) {
-                alert("請點擊左上角齒輪輸入抽獎名單！");
+                alert("名單已空或未輸入！");
                 showAdmin();
                 return;
             }
@@ -277,13 +253,11 @@
             rolling = true;
             document.getElementById("rolling-ui").style.display = "flex";
 
-            // 拉霸滾動效果
             timer = setInterval(() => {
                 let name = config.names[Math.floor(Math.random() * config.names.length)];
                 document.getElementById("rolling-name").innerText = name;
             }, 60);
 
-            // 7秒後開獎
             setTimeout(() => {
                 clearInterval(timer);
                 rolling = false;
@@ -295,11 +269,11 @@
             document.getElementById("rolling-ui").style.display = "none";
             let winners = [];
 
-            // 抽獎邏輯：從名單中抽出並不重複
             for (let i = 0; i < config.perDraw; i++) {
                 if (config.names.length > 0) {
                     let index = Math.floor(Math.random() * config.names.length);
                     winners.push(config.names.splice(index, 1)[0]);
+                    pulledCount++; // 每抽中一個，計數加 1
                 }
             }
 
@@ -308,13 +282,13 @@
             winText.style.fontSize = config.fontSize;
 
             document.getElementById("winner-ui").style.display = "flex";
+            
+            updateStatUI(); // 開獎後立即更新剩餘人數
 
-            // 噴泉紙屑特效
             confetti({
                 particleCount: 250,
                 spread: 100,
-                origin: { y: 0.6 },
-                colors: ['#fccd4d', '#ffffff', '#ff0000']
+                origin: { y: 0.6 }
             });
         }
 
@@ -322,6 +296,9 @@
             document.getElementById("winner-ui").style.display = "none";
             document.getElementById("rolling-name").innerText = "準備中...";
         }
+
+        // 初始化
+        updateStatUI();
     </script>
 
 </body>
