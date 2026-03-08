@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>亞護開發 2026 春酒抽獎</title>
+
+<title>亞護開發 春酒抽獎系統</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -20,16 +23,22 @@ font-family:sans-serif;
 }
 
 .main-stage{
+
 position:relative;
 width:100vw;
 height:100vh;
-background:url('yahu.jpg.PNG') center/cover no-repeat;
+
+background:url("yahu.jpg.PNG") center/cover no-repeat;
+
 transition:0.5s;
+
 }
 
 .ready-mode{
-background-image:url('ready.jpg.PNG') !important;
+background-image:url("ready.jpg.PNG") !important;
 }
+
+/* 按鈕 */
 
 #start-trigger{
 position:absolute;
@@ -66,30 +75,36 @@ z-index:10;
 display:none;
 }
 
-/* 音樂開關 */
+/* 音樂按鈕 */
 
 #music-btn{
 
-position:absolute;
+position:fixed;
+
 top:20px;
 right:20px;
 
-background:rgba(0,0,0,0.6);
+width:50px;
+height:50px;
+
+border-radius:50%;
+
+background:rgba(0,0,0,0.7);
+
+display:flex;
+align-items:center;
+justify-content:center;
+
 color:white;
-
-padding:10px 15px;
-
-border-radius:10px;
+font-size:24px;
 
 cursor:pointer;
 
-z-index:50;
-
-font-size:18px;
+z-index:999;
 
 }
 
-/* 抽獎滾動 */
+/* 滾動抽獎 */
 
 #rolling-ui{
 
@@ -99,7 +114,7 @@ left:0;
 width:100%;
 height:100%;
 
-background:rgba(0,0,0,0.92);
+background:rgba(0,0,0,0.9);
 
 display:none;
 
@@ -116,11 +131,12 @@ z-index:20;
 font-size:90px;
 color:white;
 font-weight:bold;
+
 text-shadow:0 0 40px #fccd4d;
 
 }
 
-/* 得獎畫面 */
+/* 中獎 */
 
 #winner-ui{
 
@@ -138,7 +154,7 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 
-z-index:25;
+z-index:30;
 
 }
 
@@ -147,54 +163,10 @@ z-index:25;
 font-size:100px;
 color:white;
 font-weight:bold;
-text-shadow:0 0 50px #fccd4d;
+
+text-shadow:0 0 50px gold;
+
 text-align:center;
-
-}
-
-#admin-panel{
-
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-
-background:rgba(20,10,10,0.98);
-
-display:none;
-
-z-index:100;
-
-padding:30px;
-box-sizing:border-box;
-
-color:white;
-
-}
-
-.admin-input{
-
-width:100%;
-background:#222;
-border:1px solid #444;
-color:white;
-padding:15px;
-margin:15px 0;
-font-size:18px;
-
-}
-
-.save-btn{
-
-background:#fccd4d;
-border:none;
-color:black;
-padding:15px;
-font-weight:bold;
-border-radius:5px;
-cursor:pointer;
-width:100%;
 
 }
 
@@ -203,19 +175,19 @@ width:100%;
 
 <body>
 
-<div class="main-stage" id="stage">
+<div id="music-btn">🔊</div>
 
-<div id="music-btn" onclick="toggleMusic()">🔊</div>
+<div class="main-stage" id="stage">
 
 <div id="start-trigger" onclick="goToReady()"></div>
 
 <div id="draw-trigger" onclick="runLottery()"></div>
 
-<div id="admin-trigger" onclick="showAdmin()"></div>
+<div id="admin-trigger"></div>
 
 <div id="rolling-ui">
 
-<div style="color:#fccd4d;font-size:32px;margin-bottom:40px;letter-spacing:8px;">
+<div style="color:#fccd4d;font-size:32px;margin-bottom:40px;">
 抽獎進行中
 </div>
 
@@ -225,93 +197,67 @@ width:100%;
 
 <div id="winner-ui" onclick="reset()">
 
-<div style="color:#fccd4d;font-size:30px;margin-bottom:20px;letter-spacing:10px;">
+<div style="color:#fccd4d;font-size:40px;margin-bottom:20px;">
 天選之人
 </div>
 
 <div id="winner-name" class="winner-name"></div>
 
-<div style="color:#aaa;margin-top:40px;">
-點擊畫面繼續
 </div>
 
 </div>
 
-</div>
+<audio id="bgm" loop>
 
-<div id="admin-panel">
+<source src="music.mp3.m4a">
 
-<h2 style="color:#fccd4d">抽獎系統設定</h2>
-
-<p>抽獎名單 (一人一行)</p>
-
-<textarea id="admin-names" class="admin-input" rows="10"></textarea>
-
-<p>
-單次抽出幾人
-<input type="number" id="admin-per" class="admin-input" style="width:120px" value="1">
-</p>
-
-<p>
-得獎字體大小
-<input type="text" id="admin-size" class="admin-input" style="width:150px" value="80px">
-</p>
-
-<button class="save-btn" onclick="hideAdmin()">儲存設定</button>
-
-</div>
-
-<audio id="bgm" src="music.mp3.m4a" loop></audio>
+</audio>
 
 <script>
 
 let rolling=false
 let timer
-let musicOn=true
 
-let config={
-names:[],
-perDraw:1,
-fontSize:"80px"
-}
+let musicOn=true
 
 const audio=document.getElementById("bgm")
 
-function toggleMusic(){
+const musicBtn=document.getElementById("music-btn")
+
+/* 音樂控制 */
+
+musicBtn.onclick=function(){
 
 if(musicOn){
 
 audio.pause()
-document.getElementById("music-btn").innerText="🔇"
-musicOn=false
+musicBtn.innerHTML="🔇"
 
 }else{
 
 audio.play()
-document.getElementById("music-btn").innerText="🔊"
-musicOn=true
+
+musicBtn.innerHTML="🔊"
 
 }
 
-}
-
-function showAdmin(){
-document.getElementById("admin-panel").style.display="block"
-}
-
-function hideAdmin(){
-
-config.names=document.getElementById("admin-names").value
-.split("\n")
-.filter(n=>n.trim()!="")
-
-config.perDraw=parseInt(document.getElementById("admin-per").value)
-
-config.fontSize=document.getElementById("admin-size").value
-
-document.getElementById("admin-panel").style.display="none"
+musicOn=!musicOn
 
 }
+
+/* 第一次點擊解鎖音訊 */
+
+document.body.addEventListener("click",function(){
+
+if(audio.paused && musicOn){
+
+audio.play().catch(()=>{})
+
+}
+
+},{once:true})
+
+/* 進入抽獎畫面 */
 
 function goToReady(){
 
@@ -321,26 +267,29 @@ document.getElementById("stage").classList.add("ready-mode")
 
 document.getElementById("draw-trigger").style.display="block"
 
-document.getElementById("admin-trigger").style.display="block"
-
 if(musicOn){
 
-audio.currentTime=0
-audio.play()
+audio.play().catch(()=>{})
 
 }
 
 }
+
+/* 抽獎 */
+
+let names=[]
 
 function runLottery(){
 
 if(rolling) return
 
-if(config.names.length==0){
+if(names.length==0){
 
-alert("請先在系統設定輸入名單")
+let text=prompt("輸入名單 (用逗號分隔)")
 
-return
+if(!text) return
+
+names=text.split(",")
 
 }
 
@@ -350,7 +299,7 @@ document.getElementById("rolling-ui").style.display="flex"
 
 timer=setInterval(()=>{
 
-let name=config.names[Math.floor(Math.random()*config.names.length)]
+let name=names[Math.floor(Math.random()*names.length)]
 
 document.getElementById("rolling-name").innerText=name
 
@@ -368,29 +317,17 @@ showWinner()
 
 }
 
+/* 中獎 */
+
 function showWinner(){
 
 document.getElementById("rolling-ui").style.display="none"
 
-let winners=[]
+let index=Math.floor(Math.random()*names.length)
 
-for(let i=0;i<config.perDraw;i++){
+let winner=names.splice(index,1)
 
-if(config.names.length>0){
-
-let index=Math.floor(Math.random()*config.names.length)
-
-winners.push(config.names.splice(index,1)[0])
-
-}
-
-}
-
-let winText=document.getElementById("winner-name")
-
-winText.innerText=winners.join("\n")
-
-winText.style.fontSize=config.fontSize
+document.getElementById("winner-name").innerText=winner
 
 document.getElementById("winner-ui").style.display="flex"
 
@@ -402,11 +339,11 @@ origin:{y:0.6}
 
 }
 
+/* 重置 */
+
 function reset(){
 
 document.getElementById("winner-ui").style.display="none"
-
-document.getElementById("rolling-name").innerText=""
 
 }
 
