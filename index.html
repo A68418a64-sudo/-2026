@@ -21,54 +21,66 @@
             position: relative;
             width: 100vw;
             height: 100vh;
-            background: url('ready.jpg.PNG') center/cover no-repeat;
+            /* 修正檔名對應 GitHub: ready.jpg.PNG.JPG */
+            background: url('ready.jpg.PNG.JPG') center/cover no-repeat;
             transition: 0.5s;
         }
 
-        /* 關鍵修正：將人數定位在背景圖原本的位置 */
+        /* 關鍵：在圖片中重建「剩餘人數」與「已抽人數」的文字 */
         #dynamic-stats {
             position: absolute;
-            top: 49.5%; /* 根據截圖調整高度 */
+            top: 50%; /* 垂直位置調整 */
             left: 50%;
-            transform: translateX(-50%);
+            transform: translate(-50%, -50%);
             display: flex;
             justify-content: center;
-            gap: 40px; /* 調整剩餘與已抽之間的距離 */
+            gap: 40px; /* 兩組文字的間距 */
             z-index: 5;
-            pointer-events: none;
             width: 100%;
+            pointer-events: none;
+            margin-top: -5px; /* 微調上下偏移 */
         }
 
         .stat-item {
-            color: #fccd4d; /* 金色文字對應背景 */
-            font-size: 20px;
+            color: #fccd4d; /* 金色文字 */
+            font-size: 22px; /* 字體大小 */
             font-weight: bold;
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
         }
 
-        /* 原本的統計方框刪除，改用上面的定位 */
+        .stat-item i {
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        /* 齒輪按鈕 */
         #settings-btn {
             position: absolute;
-            top: 15px; left: 15px;
-            width: 40px; height: 40px;
-            background: rgba(0, 0, 0, 0.2);
-            color: rgba(255,255,255,0.5);
+            top: 20px; left: 20px;
+            width: 45px; height: 45px;
+            background: rgba(0, 0, 0, 0.3);
+            color: white;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             cursor: pointer;
             z-index: 60;
-            font-size: 20px;
+            font-size: 24px;
         }
 
+        /* 開始抽獎點擊區 */
         #draw-trigger {
             position: absolute;
-            width: 28%; height: 8%;
+            width: 30%; height: 10%;
             top: 86%; left: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
             z-index: 10;
         }
 
+        /* 滾動畫面與得獎畫面 */
         #rolling-ui, #winner-ui {
             position: absolute;
             top: 0; left: 0;
@@ -82,9 +94,10 @@
         #rolling-ui { background: rgba(0, 0, 0, 0.85); z-index: 20; }
         #winner-ui { background: rgba(0, 0, 0, 0.9); z-index: 25; cursor: pointer; }
 
-        .rolling-name { font-size: 90px; color: white; font-weight: bold; text-shadow: 0 0 40px #fccd4d; }
-        .winner-name { font-size: 100px; color: white; font-weight: bold; text-shadow: 0 0 50px #fccd4d; text-align: center; white-space: pre-wrap; }
+        .rolling-name { font-size: 100px; color: white; font-weight: bold; text-shadow: 0 0 40px #fccd4d; }
+        .winner-name { font-size: 120px; color: white; font-weight: bold; text-shadow: 0 0 50px #fccd4d; text-align: center; white-space: pre-wrap; }
 
+        /* 後台面板 */
         #admin-panel {
             position: fixed;
             top: 0; left: 0;
@@ -98,9 +111,9 @@
             overflow-y: auto;
         }
 
-        .admin-content { max-width: 600px; margin: 0 auto; }
-        .admin-input { width: 100%; background: #222; border: 1px solid #555; color: white; padding: 12px; margin: 10px 0 20px 0; font-size: 16px; border-radius: 8px; box-sizing: border-box; }
-        .save-btn { background: #fccd4d; border: none; color: black; padding: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 18px; }
+        .admin-content { max-width: 500px; margin: 0 auto; }
+        .admin-input { width: 100%; background: #222; border: 1px solid #555; color: white; padding: 12px; margin: 10px 0 20px 0; font-size: 18px; border-radius: 8px; }
+        .save-btn { background: #fccd4d; border: none; color: black; padding: 18px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; font-size: 20px; }
     </style>
 </head>
 
@@ -108,7 +121,7 @@
 
     <div class="main-stage" id="stage">
         <div id="dynamic-stats">
-            <div class="stat-item">剩餘 <span id="count-remain">0</span> 人</div>
+            <div class="stat-item"><i class="fas fa-users"></i> 剩餘 <span id="count-remain">0</span> 人</div>
             <div class="stat-item">已抽 <span id="count-pulled">0</span> 人</div>
         </div>
 
@@ -117,27 +130,30 @@
         <div id="draw-trigger" onclick="runLottery()"></div>
 
         <div id="rolling-ui">
-            <div style="color:#fccd4d; font-size:32px; margin-bottom:40px; letter-spacing:8px;">抽獎進行中</div>
+            <div style="color:#fccd4d; font-size:32px; margin-bottom:40px; letter-spacing:10px;">抽獎進行中</div>
             <div id="rolling-name" class="rolling-name"></div>
         </div>
 
         <div id="winner-ui" onclick="reset()">
-            <div style="color:#fccd4d; font-size:30px; margin-bottom:20px; letter-spacing:10px;">天選之人</div>
+            <div style="color:#fccd4d; font-size:30px; margin-bottom:20px; letter-spacing:12px;">天選之人</div>
             <div id="winner-name" class="winner-name"></div>
-            <div style="color:#aaa; margin-top:40px;">點擊畫面繼續</div>
+            <div style="color:#aaa; margin-top:50px;">點擊畫面繼續</div>
         </div>
     </div>
 
     <div id="admin-panel">
         <div class="admin-content">
-            <h2 style="color:#fccd4d; text-align: center;">系統設定</h2>
+            <h2 style="color:#fccd4d; text-align: center;">系統設定面板</h2>
             <label>名單 (一人一行)</label>
-            <textarea id="admin-names" class="admin-input" rows="10"></textarea>
-            <label>單次抽幾人</label>
+            <textarea id="admin-names" class="admin-input" rows="10" placeholder="請貼入名單..."></textarea>
+            
+            <label>單次抽出人數</label>
             <input type="number" id="admin-per" class="admin-input" value="1">
-            <label>字體大小</label>
-            <input type="text" id="admin-size" class="admin-input" value="80px">
-            <button class="save-btn" onclick="hideAdmin()">儲存並更新</button>
+
+            <label>得獎名字字體大小</label>
+            <input type="text" id="admin-size" class="admin-input" value="100px">
+
+            <button class="save-btn" onclick="hideAdmin()">儲存設定並重置</button>
         </div>
     </div>
 
@@ -147,8 +163,9 @@
         let rolling = false;
         let timer;
         let pulledCount = 0;
-        let config = { names: [], perDraw: 1, fontSize: "80px" };
+        let config = { names: [], perDraw: 1, fontSize: "100px" };
 
+        // 同步人數到畫面上
         function updateStatUI() {
             document.getElementById("count-remain").innerText = config.names.length;
             document.getElementById("count-pulled").innerText = pulledCount;
@@ -157,21 +174,29 @@
         function showAdmin() { document.getElementById("admin-panel").style.display = "block"; }
 
         function hideAdmin() {
-            config.names = document.getElementById("admin-names").value.split("\n").map(n => n.trim()).filter(n => n !== "");
+            const rawNames = document.getElementById("admin-names").value;
+            config.names = rawNames.split("\n").map(n => n.trim()).filter(n => n !== "");
             config.perDraw = parseInt(document.getElementById("admin-per").value) || 1;
             config.fontSize = document.getElementById("admin-size").value;
-            pulledCount = 0; 
+            
+            pulledCount = 0; // 每次存檔重置計數
             updateStatUI();
             document.getElementById("admin-panel").style.display = "none";
         }
 
         function runLottery() {
             if (rolling || config.names.length === 0) return;
+            
             rolling = true;
             document.getElementById("rolling-ui").style.display = "flex";
+
+            // 隨機跳動名單
             timer = setInterval(() => {
-                document.getElementById("rolling-name").innerText = config.names[Math.floor(Math.random() * config.names.length)];
+                document.getElementById("rolling-name").innerText = 
+                    config.names[Math.floor(Math.random() * config.names.length)];
             }, 60);
+
+            // 7 秒後開獎
             setTimeout(() => {
                 clearInterval(timer);
                 rolling = false;
@@ -182,22 +207,33 @@
         function showWinner() {
             document.getElementById("rolling-ui").style.display = "none";
             let winners = [];
+
             for (let i = 0; i < config.perDraw; i++) {
                 if (config.names.length > 0) {
-                    winners.push(config.names.splice(Math.floor(Math.random() * config.names.length), 1)[0]);
+                    let index = Math.floor(Math.random() * config.names.length);
+                    winners.push(config.names.splice(index, 1)[0]);
                     pulledCount++;
                 }
             }
-            let winText = document.getElementById("winner-name");
-            winText.innerText = winners.join("\n");
-            winText.style.fontSize = config.fontSize;
+
+            const winDisplay = document.getElementById("winner-name");
+            winDisplay.innerText = winners.join("\n");
+            winDisplay.style.fontSize = config.fontSize;
+
             document.getElementById("winner-ui").style.display = "flex";
-            updateStatUI();
-            confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
+            updateStatUI(); // 開獎完立刻更新人數
+
+            confetti({
+                particleCount: 250,
+                spread: 100,
+                origin: { y: 0.6 }
+            });
         }
 
-        function reset() { document.getElementById("winner-ui").style.display = "none"; }
-        
+        function reset() {
+            document.getElementById("winner-ui").style.display = "none";
+        }
+
         updateStatUI();
     </script>
 </body>
