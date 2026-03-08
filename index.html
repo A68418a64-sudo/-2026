@@ -1,144 +1,201 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>亞護開發 2026 抽獎</title>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>2026 亞護開發春酒抽獎</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
-        
-        /* 核心修正：背景圖路徑必須與 GitHub 檔案名完全一致 */
-        .main-container {
-            position: relative; width: 100vw; height: 100vh;
-            background: url('bg-main.jpg.JPG') center/contain no-repeat;
+        :root {
+            --primary-gold: #d4af37;
+            --industrial-dark: rgba(20, 20, 20, 0.9);
         }
 
-        /* 互動區域：對準您的紅框座標 */
-        .slot-machine-zone {
-            position: absolute; top: 48%; left: 50%; transform: translate(-50%, -50%);
-            width: 45%; height: 28%; display: flex; align-items: center; justify-content: center; z-index: 10;
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+            font-family: "Microsoft JhengHei", sans-serif;
         }
 
-        /* 調整 READY 文字：讓它更融入工業風 */
-        #ready-layer { text-align: center; }
-        .ready-title { color: #E0E0E0; font-size: 80px; font-weight: 900; letter-spacing: 8px; margin: 0; opacity: 0.85; }
-        .ready-subtitle { color: #E0E0E0; font-size: 28px; font-weight: bold; margin-top: -5px; opacity: 0.8; }
-
-        /* 抽獎名單層 */
-        #lotto-layer {
-            display: none; color: #FFFFFF; font-weight: 900; text-align: center;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.7); line-height: 1.1;
+        /* 主視覺容器 */
+        .game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: url('yahu.jpg.PNG') no-repeat center center;
+            background-size: contain;
         }
 
-        /* 透明按鈕：對準「開始抽獎」金色按鈕位置 (X:510, Y:560) */
-        #start-hotspot {
-            position: absolute; top: 76.5%; left: 50%; transform: translate(-50%, -50%);
-            width: 20%; height: 8%; cursor: pointer; z-index: 20; background: rgba(255,0,0,0); /* 完全透明 */
+        /* 透明熱區：開始抽獎 (對準圖片中的遊戲開始按鈕) */
+        #start-btn {
+            position: absolute;
+            left: 42%; top: 58%;
+            width: 16%; height: 8%;
+            cursor: pointer;
+            z-index: 10;
+            /* background: rgba(255,0,0,0.3); // 除錯用，正式環境請註解掉 */
         }
 
-        /* 透明按鈕：對準最下方的「系統設定」文字位置 (X:600, Y:720) */
-        #setting-hotspot {
-            position: absolute; bottom: 3%; left: 50%; transform: translateX(-50%);
-            width: 120px; height: 40px; cursor: pointer; z-index: 20; background: rgba(0,255,0,0); /* 完全透明 */
+        /* 透明熱區：系統設定 (對準圖片右下角或底部文字) */
+        #settings-trigger {
+            position: absolute;
+            right: 2%; bottom: 2%;
+            width: 10%; height: 5%;
+            cursor: pointer;
+            z-index: 10;
         }
 
-        /* 控制面板彈窗 */
-        #admin-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(20, 10, 10, 0.98); z-index: 100; display: none; color: #fff; padding: 40px; box-sizing: border-box;
+        /* 中央抽獎區域遮罩 (用來擋住 READY 字樣) */
+        .result-overlay {
+            position: absolute;
+            left: 31%; top: 54%; /* 根據你的紅色框框位置微調 */
+            width: 38%; height: 18%;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(30, 25, 20, 0.95); /* 模擬背景色 */
+            border-radius: 15px;
+            z-index: 5;
+            overflow: hidden;
         }
-        .field { margin-bottom: 20px; }
-        textarea, input { width: 100%; padding: 15px; background: #2a1a1a; border: 1px solid #4a3a3a; color: #fff; border-radius: 8px; font-size: 18px; }
-        .save-btn { width: 100%; background: #FCCD4D; color: #311; padding: 18px; border: none; font-weight: bold; font-size: 22px; border-radius: 12px; cursor: pointer; }
+
+        /* 滾動文字與結果字體 */
+        #lottery-display {
+            color: #fff;
+            text-align: center;
+            font-weight: bold;
+            line-height: 1.2;
+            text-shadow: 0 0 10px var(--primary-gold);
+            word-break: break-all;
+            padding: 10px;
+        }
+
+        /* 工業風設定頁面 */
+        #settings-panel {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80%; max-width: 500px;
+            background: var(--industrial-dark);
+            border: 2px solid var(--primary-gold);
+            padding: 20px;
+            color: #fff;
+            display: none;
+            z-index: 100;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        .setting-item { margin-bottom: 15px; }
+        textarea { width: 100%; height: 80px; background: #333; color: #fff; border: 1px solid #666; }
+        input[type="number"], input[type="range"] { width: 100%; }
+        button.save-btn {
+            background: var(--primary-gold);
+            border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; width: 100%;
+        }
+
+        /* 動態滾動動畫 */
+        .rolling { animation: blurRolling 0.1s infinite; }
+        @keyframes blurRolling {
+            0% { filter: blur(0px); transform: translateY(0); }
+            50% { filter: blur(2px); transform: translateY(-5px); }
+            100% { filter: blur(0px); transform: translateY(0); }
+        }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <div class="slot-machine-zone">
-            <div id="ready-layer">
-                <p class="ready-title">READY</p>
-                <p class="ready-subtitle">準備開獎</p>
-            </div>
-            <div id="lotto-layer"></div>
-        </div>
+<div class="game-container">
+    <div id="start-btn" onclick="startLottery()"></div>
+    <div id="settings-trigger" onclick="toggleSettings()"></div>
 
-        <div id="start-hotspot" onclick="runLottery()"></div>
-        <div id="setting-hotspot" onclick="toggleModal()"></div>
+    <div id="result-overlay" class="result-overlay">
+        <div id="lottery-display">READY</div>
     </div>
+</div>
 
-    <div id="admin-modal">
-        <h2 style="color: #FCCD4D;">⚙️ 抽獎控制面板 (亞護開發專用)</h2>
-        <div class="field">
-            <label>匯入抽獎名單 (一人一行)</label>
-            <textarea id="name-list" rows="10" placeholder="請輸入姓名名單..."></textarea>
-        </div>
-        <div class="field">
-            <label>單次抽出人數</label>
-            <input type="number" id="pick-count" value="1">
-        </div>
-        <div class="field">
-            <label>名單大小 (如: 70px)</label>
-            <input type="text" id="font-size-val" value="70px">
-        </div>
-        <button class="save-btn" onclick="saveSettings()">💾 儲存並關閉設定</button>
-        <p style="text-align: center; color: #888; font-size: 14px; margin-top: 20px;">儲存後即可點擊「開始抽獎」</p>
+<div id="settings-panel">
+    <h3>⚙️ 系統設定 (工業風模式)</h3>
+    <div class="setting-item">
+        <label>抽獎名單 (每行一個名字):</label>
+        <textarea id="name-list">王大明&#10;李小華&#10;張三&#10;李四&#10;趙五</textarea>
     </div>
+    <div class="setting-item">
+        <label>每次抽取人數:</label>
+        <input type="number" id="draw-count" value="1">
+    </div>
+    <div class="setting-item">
+        <label>結果字體大小 (px):</label>
+        <input type="range" id="font-size-slider" min="20" max="100" value="40" oninput="updateFontSize(this.value)">
+        <span id="font-size-val">40px</span>
+    </div>
+    <button class="save-btn" onclick="toggleSettings()">儲存並關閉</button>
+</div>
 
-    <audio id="sfx" src="music.mp3.m4a"></audio>
+<script>
+    let names = [];
+    let isRolling = false;
 
-    <script>
-        let isActive = false;
-        let data = { names: [], count: 1, size: "70px" };
-        const sfx = document.getElementById('sfx');
+    function toggleSettings() {
+        const panel = document.getElementById('settings-panel');
+        panel.style.display = (panel.style.display === 'block') ? 'none' : 'block';
+    }
 
-        function toggleModal() {
-            const m = document.getElementById('admin-modal');
-            m.style.display = m.style.display === 'block' ? 'none' : 'block';
+    function updateFontSize(val) {
+        document.getElementById('font-size-val').innerText = val + 'px';
+        document.getElementById('lottery-display').style.fontSize = val + 'px';
+    }
+
+    function startLottery() {
+        if (isRolling) return;
+
+        const listText = document.getElementById('name-list').value.trim();
+        names = listText.split('\n').filter(n => n.trim() !== '');
+        const drawCount = parseInt(document.getElementById('draw-count').value);
+
+        if (names.length < drawCount) {
+            alert('名單人數不足！');
+            return;
         }
 
-        function saveSettings() {
-            data.names = document.getElementById('name-list').value.split('\n').filter(n => n.trim() !== "");
-            data.count = parseInt(document.getElementById('pick-count').value);
-            data.size = document.getElementById('font-size-val').value;
-            document.getElementById('lotto-layer').style.fontSize = data.size;
-            toggleModal();
-        }
+        isRolling = true;
+        const display = document.getElementById('lottery-display');
+        const overlay = document.getElementById('result-overlay');
+        
+        // 顯示遮罩並開始滾動
+        overlay.style.display = 'flex';
+        display.classList.add('rolling');
 
-        function runLottery() {
-            if (data.names.length === 0) { 
-                toggleModal(); // 若無名單，自動開啟設定面板
-                return; 
+        // 模擬拉霸滾動效果
+        let rollInterval = setInterval(() => {
+            display.innerText = names[Math.floor(Math.random() * names.length)];
+        }, 80);
+
+        // 10秒後停止並跳出最終名單
+        setTimeout(() => {
+            clearInterval(rollInterval);
+            display.classList.remove('rolling');
+            
+            // 隨機抽取指定人數
+            let results = [];
+            let tempNames = [...names];
+            for (let i = 0; i < drawCount; i++) {
+                const idx = Math.floor(Math.random() * tempNames.length);
+                results.push(tempNames.splice(idx, 1)[0]);
             }
-            if (isActive) return;
 
-            isActive = true;
-            sfx.play();
+            display.innerText = results.join('、');
+            isRolling = false;
+        }, 10000); // 10秒
+    }
 
-            document.getElementById('ready-layer').style.display = 'none';
-            const display = document.getElementById('lotto-layer');
-            display.style.display = 'block';
+    // 初始化字體大小
+    updateFontSize(40);
+</script>
 
-            const cycle = setInterval(() => {
-                display.innerText = data.names[Math.floor(Math.random() * data.names.length)];
-            }, 60);
-
-            setTimeout(() => {
-                clearInterval(cycle);
-                isActive = false;
-                
-                let winners = [];
-                for(let i=0; i < data.count; i++) {
-                    if(data.names.length > 0) {
-                        let idx = Math.floor(Math.random() * data.names.length);
-                        winners.push(data.names.splice(idx, 1)[0]);
-                    }
-                }
-                display.innerHTML = winners.join('<br>');
-                confetti({ particleCount: 250, spread: 120, origin: { y: 0.6 } });
-            }, 7000);
-        }
-    </script>
 </body>
 </html>
