@@ -17,32 +17,32 @@
             font-family: "Microsoft JhengHei", sans-serif;
         }
 
-        /* 修正 GitHub 檔名對應：ready.jpg.PNG.JPG */
         .main-stage {
             position: relative;
             width: 100vw;
             height: 100vh;
-            background: url('ready.jpg.PNG.JPG') center/cover no-repeat;
+            /* 已更新為簡化後的檔名 */
+            background: url('ready.jpg') center/cover no-repeat;
             transition: 0.5s;
         }
 
-        /* 統計人數：精確對準原本圖片中間文字區塊 */
+        /* 統計人數：定位在 SIGMABED 下方的橫條區塊 */
         #dynamic-stats {
             position: absolute;
-            top: 50.3%; /* 調整高度以對齊 SIGMABED 下方的橫條 */
+            top: 50.3%; 
             left: 50%;
             transform: translate(-50%, -50%);
             display: flex;
             justify-content: center;
-            gap: 50px; /* 兩組文字的左右間距 */
+            gap: 50px; 
             z-index: 5;
             width: 100%;
             pointer-events: none;
         }
 
         .stat-item {
-            color: #fccd4d; /* 金色文字 */
-            font-size: 24px; /* 對應原本設計的大小 */
+            color: #fccd4d; 
+            font-size: 24px; 
             font-weight: bold;
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,1);
@@ -62,7 +62,7 @@
             font-size: 22px;
         }
 
-        /* 靜音按鈕修正檔名位置 */
+        /* 靜音按鈕 */
         #music-btn {
             position: absolute;
             top: 15px; right: 15px;
@@ -72,7 +72,7 @@
             font-size: 22px;
         }
 
-        /* 點擊區域：對準背景的「開始抽獎」按鈕 */
+        /* 抽獎按鈕區域 */
         #draw-trigger {
             position: absolute;
             width: 30%; height: 10%;
@@ -82,7 +82,7 @@
             z-index: 10;
         }
 
-        /* UI 畫面 */
+        /* 覆蓋 UI */
         #rolling-ui, #winner-ui {
             position: absolute;
             top: 0; left: 0;
@@ -148,13 +148,13 @@
         <div class="admin-content">
             <h2 style="color:#fccd4d; text-align: center;">系統設定面板</h2>
             <label>名單 (一人一行)</label>
-            <textarea id="admin-names" class="admin-input" rows="10"></textarea>
+            <textarea id="admin-names" class="admin-input" rows="10" placeholder="請貼入名單..."></textarea>
             
             <label>單次抽出人數</label>
             <input type="number" id="admin-per" class="admin-input" value="1">
 
             <label>得獎名字字體大小</label>
-            <input type="text" id="admin-size" class="admin-input" value="100px">
+            <input type="text" id="admin-size" class="admin-input" value="110px">
 
             <button class="save-btn" onclick="hideAdmin()">儲存並更新名單</button>
         </div>
@@ -167,7 +167,7 @@
         let timer;
         let musicOn = false;
         let pulledCount = 0;
-        let config = { names: [], perDraw: 1, fontSize: "100px" };
+        let config = { names: [], perDraw: 1, fontSize: "110px" };
 
         const audio = document.getElementById("bgm");
 
