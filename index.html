@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <title>亞護開發 2026 春酒抽獎</title>
 
@@ -10,158 +12,271 @@
 
 <style>
 
-body,html{
+html,body{
 margin:0;
 padding:0;
 width:100%;
 height:100%;
+background:black;
 font-family:sans-serif;
 overflow:hidden;
+display:flex;
+align-items:center;
+justify-content:center;
 }
+
+/* 舞台比例固定 */
 
 .stage{
-width:100%;
-height:100%;
-background:url("yahu.jpg") center/cover no-repeat;
+
 position:relative;
+
+width:100vw;
+
+max-width:1920px;
+
+aspect-ratio:16/9;
+
+background:url("yahu.jpg") center/cover no-repeat;
+
 }
 
+/* ready */
+
 .ready{
+
 background:url("ready.jpg") center/cover no-repeat;
+
 }
 
 /* 開始按鈕 */
 
 .start-btn{
+
 position:absolute;
+
 top:60%;
+
 left:50%;
+
 transform:translate(-50%,-50%);
-width:35%;
-height:14%;
+
+width:32%;
+
+height:13%;
+
 cursor:pointer;
+
 }
 
 /* 抽獎按鈕 */
 
 .draw-btn{
+
 position:absolute;
+
 top:75%;
+
 left:50%;
+
 transform:translate(-50%,-50%);
+
 width:25%;
+
 height:10%;
+
 cursor:pointer;
+
 }
 
 /* 人數顯示 */
 
 .counter{
+
 position:absolute;
-top:28%;
+
+top:26%;
+
 left:50%;
+
 transform:translateX(-50%);
+
 color:#f2d089;
-font-size:28px;
+
+font-size:clamp(16px,2vw,34px);
+
 letter-spacing:3px;
+
+text-align:center;
+
 }
 
 /* 系統設定 */
 
 .setting{
+
 position:absolute;
-bottom:40px;
+
+bottom:3%;
+
 left:50%;
+
 transform:translateX(-50%);
+
 color:#e0c26c;
-font-size:22px;
+
+font-size:clamp(14px,1.6vw,26px);
+
 cursor:pointer;
+
 }
 
-/* 音樂按鈕 */
+/* 音樂 */
 
 .music{
+
 position:absolute;
-top:20px;
-right:20px;
-font-size:26px;
-cursor:pointer;
+
+top:2%;
+
+right:2%;
+
+font-size:clamp(20px,2vw,30px);
+
 color:white;
+
+cursor:pointer;
+
 }
 
 /* 抽獎動畫 */
 
 .rolling{
+
 position:absolute;
+
 top:0;
+
 left:0;
+
 width:100%;
+
 height:100%;
+
 background:rgba(0,0,0,0.9);
+
 display:none;
+
 align-items:center;
+
 justify-content:center;
+
 flex-direction:column;
+
 color:white;
+
 }
 
 .rolling-name{
-font-size:90px;
+
+font-size:clamp(40px,8vw,120px);
+
 text-shadow:0 0 40px gold;
+
 }
 
 /* 得獎 */
 
 .winner{
+
 position:absolute;
+
 top:0;
+
 left:0;
+
 width:100%;
+
 height:100%;
+
 background:rgba(0,0,0,0.9);
+
 display:none;
+
 align-items:center;
+
 justify-content:center;
+
 flex-direction:column;
+
 color:white;
+
 }
 
 .winner-name{
-font-size:100px;
+
+font-size:clamp(50px,9vw,150px);
+
 text-shadow:0 0 50px gold;
+
 }
 
 /* 設定面板 */
 
 .admin{
+
 position:fixed;
+
 top:0;
+
 left:0;
+
 width:100%;
+
 height:100%;
+
 background:rgba(0,0,0,0.95);
+
 display:none;
+
 padding:40px;
+
 color:white;
+
+overflow:auto;
+
 }
 
 textarea,input{
+
 width:100%;
+
 padding:10px;
+
 margin:10px 0;
+
 background:#222;
+
 color:white;
+
 border:1px solid #444;
+
 }
 
 button{
+
 padding:12px 20px;
+
 background:gold;
+
 border:none;
+
 cursor:pointer;
+
 }
 
 </style>
+
 </head>
 
 <body>
@@ -183,13 +298,19 @@ cursor:pointer;
 </div>
 
 <div class="rolling" id="rolling">
-<div style="font-size:32px;margin-bottom:40px">抽獎進行中</div>
+
+<div style="font-size:clamp(18px,2vw,40px);margin-bottom:40px">抽獎進行中</div>
+
 <div id="rollingName" class="rolling-name"></div>
+
 </div>
 
 <div class="winner" id="winner" onclick="closeWinner()">
-<div style="font-size:30px;margin-bottom:30px">天選之人</div>
+
+<div style="font-size:clamp(20px,2vw,40px);margin-bottom:30px">天選之人</div>
+
 <div id="winnerName" class="winner-name"></div>
+
 </div>
 
 </div>
@@ -234,11 +355,13 @@ function toggleMusic(){
 if(audio.paused){
 
 audio.play()
+
 document.getElementById("musicBtn").innerText="🔊"
 
 }else{
 
 audio.pause()
+
 document.getElementById("musicBtn").innerText="🔇"
 
 }
@@ -334,9 +457,13 @@ document.getElementById("winnerName").innerText=winners.join("\n")
 document.getElementById("winner").style.display="flex"
 
 confetti({
+
 particleCount:200,
+
 spread:100,
+
 origin:{y:0.6}
+
 })
 
 }
