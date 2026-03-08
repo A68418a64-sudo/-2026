@@ -16,7 +16,6 @@ padding:0;
 width:100%;
 height:100%;
 overflow:hidden;
-background:black;
 font-family:sans-serif;
 }
 
@@ -27,189 +26,147 @@ background:url("yahu.jpg") center/cover no-repeat;
 position:relative;
 }
 
-/* 第二畫面 */
-
 .ready{
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 按鈕 */
+/* 第一畫面開始 */
 
 .start-btn{
-
 position:absolute;
 top:58%;
 left:50%;
 transform:translate(-50%,-50%);
-
 width:32%;
 height:12%;
-
 cursor:pointer;
 }
 
-/* 開始抽獎 */
+/* 抽獎按鈕 */
 
 .draw-btn{
-
 position:absolute;
 top:77%;
 left:50%;
 transform:translate(-50%,-50%);
-
 width:22%;
 height:8%;
-
 cursor:pointer;
-
 display:none;
 }
 
 /* 音樂 */
 
 .music{
-
 position:absolute;
 top:20px;
 right:20px;
-
 background:rgba(0,0,0,0.6);
 color:white;
-
 padding:10px 15px;
-
 border-radius:10px;
-
 cursor:pointer;
-
 display:none;
 }
 
 /* 系統設定 */
 
 .setting{
-
 position:absolute;
 top:20px;
 right:90px;
-
 background:rgba(0,0,0,0.6);
 color:white;
-
 padding:10px 15px;
-
 border-radius:10px;
-
 cursor:pointer;
-
 display:none;
 }
 
-/* 抽獎畫面 */
+/* 人數顯示 */
+
+.counter{
+position:absolute;
+top:20px;
+left:20px;
+background:rgba(0,0,0,0.6);
+color:white;
+padding:12px 18px;
+border-radius:10px;
+font-size:18px;
+display:none;
+}
+
+/* 抽獎滾動 */
 
 .rolling{
-
 position:absolute;
-
 top:0;
 left:0;
-
 width:100%;
 height:100%;
-
 background:rgba(0,0,0,0.9);
-
 display:none;
-
 justify-content:center;
 align-items:center;
 flex-direction:column;
-
 color:white;
-
 }
 
 .rolling-name{
-
 font-size:90px;
-
 text-shadow:0 0 40px gold;
-
 }
 
 /* 得獎 */
 
 .winner{
-
 position:absolute;
-
 top:0;
 left:0;
-
 width:100%;
 height:100%;
-
 background:rgba(0,0,0,0.9);
-
 display:none;
-
 justify-content:center;
 align-items:center;
 flex-direction:column;
-
 color:white;
-
 }
 
 .winner-name{
-
 font-size:100px;
-
 text-shadow:0 0 50px gold;
-
 }
 
-/* 系統面板 */
+/* 系統設定 */
 
 .admin{
-
 position:fixed;
-
 top:0;
 left:0;
-
 width:100%;
 height:100%;
-
 background:rgba(0,0,0,0.95);
-
 display:none;
-
 padding:40px;
-
 color:white;
-
 }
 
 input,textarea{
-
 width:100%;
 padding:10px;
 margin:10px 0;
-
 background:#222;
 color:white;
 border:1px solid #444;
-
 }
 
 button{
-
-padding:10px 20px;
+padding:12px 20px;
 background:gold;
 border:none;
 cursor:pointer;
-
 }
 
 </style>
@@ -227,39 +184,37 @@ cursor:pointer;
 
 <div class="setting" id="settingBtn" onclick="openAdmin()">⚙</div>
 
+<div class="counter" id="counter">
+參與 0 人<br>
+已抽 0 人<br>
+剩餘 0 人
+</div>
+
 <div class="rolling" id="rolling">
-
 <div style="margin-bottom:40px;font-size:30px;">抽獎進行中</div>
-
 <div id="rollingName" class="rolling-name"></div>
-
 </div>
 
 <div class="winner" id="winner" onclick="closeWinner()">
-
 <div style="margin-bottom:30px;font-size:30px;">天選之人</div>
-
 <div id="winnerName" class="winner-name"></div>
-
 </div>
 
 </div>
 
 <div class="admin" id="admin">
 
-<h2>系統設定</h2>
+<h2>⚙ 抽獎系統設定</h2>
 
-<p>抽獎名單</p>
-
+<p>參與名單 (一行一人)</p>
 <textarea id="names" rows="10"></textarea>
 
 <p>一次抽幾人</p>
-
 <input id="perDraw" type="number" value="1">
 
 <br><br>
 
-<button onclick="saveAdmin()">儲存</button>
+<button onclick="saveAdmin()">儲存設定</button>
 
 </div>
 
@@ -268,8 +223,9 @@ cursor:pointer;
 <script>
 
 let names=[]
+let totalPeople=0
+let drawnPeople=0
 let perDraw=1
-let rolling=false
 let timer
 
 const audio=document.getElementById("bgm")
@@ -286,6 +242,8 @@ document.getElementById("musicBtn").style.display="block"
 
 document.getElementById("settingBtn").style.display="block"
 
+document.getElementById("counter").style.display="block"
+
 audio.play()
 
 }
@@ -295,13 +253,11 @@ function toggleMusic(){
 if(audio.paused){
 
 audio.play()
-
 document.getElementById("musicBtn").innerText="🔊"
 
 }else{
 
 audio.pause()
-
 document.getElementById("musicBtn").innerText="🔇"
 
 }
@@ -316,11 +272,29 @@ document.getElementById("admin").style.display="block"
 
 function saveAdmin(){
 
-names=document.getElementById("names").value.split("\n").filter(n=>n!="")
+names=document.getElementById("names").value
+.split("\n")
+.filter(n=>n.trim()!="")
 
 perDraw=parseInt(document.getElementById("perDraw").value)
 
+totalPeople=names.length
+drawnPeople=0
+
+updateCounter()
+
 document.getElementById("admin").style.display="none"
+
+}
+
+function updateCounter(){
+
+let remain=totalPeople-drawnPeople
+
+document.getElementById("counter").innerHTML=
+`參與 ${totalPeople} 人<br>
+已抽 ${drawnPeople} 人<br>
+剩餘 ${remain} 人`
 
 }
 
@@ -333,8 +307,6 @@ alert("請先設定名單")
 return
 
 }
-
-rolling=true
 
 document.getElementById("rolling").style.display="flex"
 
@@ -352,7 +324,7 @@ clearInterval(timer)
 
 showWinner()
 
-},6000)
+},5000)
 
 }
 
@@ -370,22 +342,22 @@ let index=Math.floor(Math.random()*names.length)
 
 winners.push(names.splice(index,1)[0])
 
+drawnPeople++
+
 }
 
 }
+
+updateCounter()
 
 document.getElementById("winnerName").innerText=winners.join("\n")
 
 document.getElementById("winner").style.display="flex"
 
 confetti({
-
 particleCount:200,
-
 spread:100,
-
 origin:{y:0.6}
-
 })
 
 }
