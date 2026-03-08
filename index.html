@@ -2,22 +2,32 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<title>2026 春酒抽獎</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>亞護開發 2026 春酒抽獎</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 
-body{
-margin:0;
-overflow:hidden;
-font-family:sans-serif;
-}
+/* ===== 基本設定 ===== /
 
-.stage{
-position:fixed;
+html,body{
+margin:0;
+padding:0;
 width:100%;
 height:100%;
+overflow:hidden;
+font-family:sans-serif;
+background:black;
+}
+
+/ ===== 主畫面 ===== /
+
+.stage{
+position:relative;
+width:100vw;
+height:100vh;
 background:url("yahu.jpg") center/cover no-repeat;
 }
 
@@ -25,17 +35,49 @@ background:url("yahu.jpg") center/cover no-repeat;
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-.start{
+/ ===== 左上統計 ===== /
+
+.hud{
+position:absolute;
+top:30px;
+left:40px;
+color:#f2d089;
+font-size:22px;
+line-height:34px;
+display:none;
+}
+
+/ ===== 右上按鈕 ===== /
+
+.topbar{
+position:absolute;
+top:25px;
+right:35px;
+display:flex;
+gap:20px;
+font-size:26px;
+color:white;
+}
+
+.topbar div{
+cursor:pointer;
+}
+
+/ ===== 開始按鈕 ===== /
+
+.start-btn{
 position:absolute;
 top:60%;
 left:50%;
 transform:translate(-50%,-50%);
-width:300px;
+width:320px;
 height:100px;
 cursor:pointer;
 }
 
-.readyPanel{
+/ ===== READY 畫面 ===== /
+
+.ready-panel{
 position:absolute;
 top:50%;
 left:50%;
@@ -45,51 +87,76 @@ color:white;
 display:none;
 }
 
-.readyPanel h1{
-font-size:90px;
+.ready-title{
+font-size:80px;
+letter-spacing:6px;
 }
 
-button{
-font-size:30px;
-padding:20px 50px;
+.ready-sub{
+font-size:36px;
+margin-top:10px;
+}
+
+.draw-btn{
+margin-top:40px;
+font-size:28px;
+padding:15px 40px;
 border:none;
 border-radius:10px;
-background:gold;
+background:#f2b63d;
 cursor:pointer;
 }
 
+/ ===== 抽獎動畫 ===== /
+
 .rolling{
-position:fixed;
+position:absolute;
+top:0;
+left:0;
 width:100%;
 height:100%;
-background:black;
-color:white;
+background:rgba(0,0,0,0.9);
 display:none;
 align-items:center;
 justify-content:center;
 flex-direction:column;
+color:white;
 }
 
-.rollingName{
+.rolling-name{
 font-size:120px;
+text-shadow:0 0 40px gold;
 }
+
+/ ===== 得獎畫面 ===== /
 
 .winner{
-position:fixed;
+position:absolute;
+top:0;
+left:0;
 width:100%;
 height:100%;
-background:black;
-color:white;
+background:rgba(0,0,0,0.9);
 display:none;
 align-items:center;
 justify-content:center;
 flex-direction:column;
+color:white;
 }
 
-.winnerName{
-font-size:150px;
-color:gold;
+.winner-title{
+font-size:34px;
+margin-bottom:30px;
 }
+
+.winner-name{
+display:grid;
+gap:20px;
+text-align:center;
+text-shadow:0 0 50px gold;
+}
+
+/ ===== 系統設定 ===== /
 
 .admin{
 position:fixed;
@@ -97,15 +164,27 @@ top:0;
 left:0;
 width:100%;
 height:100%;
-background:black;
-color:white;
+background:rgba(0,0,0,0.95);
 display:none;
 padding:40px;
+color:white;
+overflow:auto;
 }
 
-textarea{
+textarea,input,select{
 width:100%;
-height:200px;
+padding:10px;
+margin:10px 0;
+background:#222;
+color:white;
+border:1px solid #444;
+}
+
+button{
+padding:12px 20px;
+background:gold;
+border:none;
+cursor:pointer;
 }
 
 </style>
@@ -115,44 +194,66 @@ height:200px;
 
 <div class="stage" id="stage">
 
-<div class="start" onclick="startGame()"></div>
-
-<div class="readyPanel" id="readyPanel">
-
-<h1>READY</h1>
-<p>準備開獎</p>
-
-<button onclick="startLottery()">開始抽獎</button>
-
+<div class="hud" id="hud">
+<div>👥 參與人數：<span id="total">0</span></div>
+<div>🎯 已抽人數：<span id="drawn">0</span></div>
+<div>📉 剩餘人數：<span id="remain">0</span></div>
 </div>
+
+<div class="topbar">
+<div onclick="toggleMusic()" id="musicBtn">🔊</div>
+<div onclick="openAdmin()">⚙</div>
+</div>
+
+<div class="start-btn" onclick="startGame()"></div>
+
+<div class="ready-panel" id="readyPanel">
+
+<div class="ready-title">READY</div>
+<div class="ready-sub">準備開獎</div>
+
+<button class="draw-btn" onclick="startLottery()">開始抽獎</button>
 
 </div>
 
 <div class="rolling" id="rolling">
 
-<h2>抽獎中</h2>
+<div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
 
-<div id="rollingName" class="rollingName"></div>
+<div id="rollingName" class="rolling-name"></div>
 
 </div>
 
 <div class="winner" id="winner" onclick="closeWinner()">
 
-<h2>🎉 天選之人 🎉</h2>
+<div class="winner-title">🎉 天選之人 🎉</div>
 
-<div id="winnerName" class="winnerName"></div>
+<div id="winnerName" class="winner-name"></div>
+
+</div>
 
 </div>
 
 <div class="admin" id="admin">
 
-<h2>設定名單</h2>
+<h2>抽獎系統設定</h2>
 
-<textarea id="names"></textarea>
+<p>參與名單 (一行一人)</p>
+<textarea id="names" rows="10"></textarea>
 
-<br><br>
+<p>一次抽幾人</p>
+<input id="perDraw" type="number" value="1">
 
-<button onclick="saveNames()">儲存</button>
+<p>得獎字體大小</p>
+<input id="fontSize" type="number" value="100">
+
+<p>得獎名單排版</p>
+<select id="layout">
+<option value="1">一欄</option>
+<option value="2">兩欄</option>
+</select>
+
+<button onclick="saveAdmin()">儲存</button>
 
 </div>
 
@@ -160,77 +261,169 @@ height:200px;
 
 <script>
 
+/ ===== 變數 ===== /
+
 let names=[]
-let drawn=[]
+let total=0
+let drawn=0
+let perDraw=1
+let fontSize=100
+let layout=1
+
+const audio=document.getElementById("bgm")
+
+/ ===== 開始 ===== /
 
 function startGame(){
 
-stage.classList.add("ready")
+document.getElementById("stage").classList.add("ready")
 
-readyPanel.style.display="block"
+document.querySelector(".start-btn").style.display="none"
 
-bgm.play()
+document.getElementById("readyPanel").style.display="block"
+
+document.getElementById("hud").style.display="block"
+
+audio.play()
+
+}
+
+/ ===== 音樂 ===== /
+
+function toggleMusic(){
+
+if(audio.paused){
+audio.play()
+document.getElementById("musicBtn").innerText="🔊"
+}else{
+audio.pause()
+document.getElementById("musicBtn").innerText="🔇"
+}
 
 }
 
-function saveNames(){
+/ ===== 設定 ===== /
 
-names=document.getElementById("names").value.split("\n")
+function openAdmin(){
+document.getElementById("admin").style.display="block"
+}
 
-admin.style.display="none"
+function saveAdmin(){
+
+names=document.getElementById("names").value
+.split("\n")
+.filter(n=>n.trim()!="")
+
+perDraw=parseInt(document.getElementById("perDraw").value)
+
+fontSize=parseInt(document.getElementById("fontSize").value)
+
+layout=parseInt(document.getElementById("layout").value)
+
+total=names.length
+drawn=0
+
+updateHud()
+
+document.getElementById("admin").style.display="none"
 
 }
+
+/ ===== HUD ===== /
+
+function updateHud(){
+
+document.getElementById("total").innerText=total
+document.getElementById("drawn").innerText=drawn
+document.getElementById("remain").innerText=total-drawn
+
+}
+
+/ ===== 抽獎 ===== */
 
 function startLottery(){
 
-rolling.style.display="flex"
+if(names.length==0){
+alert("請先設定名單")
+return
+}
 
-let speed=50
+document.getElementById("rolling").style.display="flex"
 
-function roll(){
+let timer=setInterval(()=>{
 
-rollingName.innerText=names[Math.floor(Math.random()*names.length)]
+let name=names[Math.floor(Math.random()names.length)]
 
-speed+=20
+document.getElementById("rollingName").innerText=name
 
-if(speed<400){
+},80)
 
-setTimeout(roll,speed)
+setTimeout(()=>{
 
-}else{
+clearInterval(timer)
 
 showWinner()
 
-}
+},5000)
 
 }
 
-roll()
-
-}
+/ ===== 顯示得獎 ===== */
 
 function showWinner(){
 
-rolling.style.display="none"
+document.getElementById("rolling").style.display="none"
 
-let index=Math.floor(Math.random()*names.length)
+let winners=[]
 
-let name=names.splice(index,1)
+for(let i=0;i<perDraw;i++){
 
-winnerName.innerText=name
+if(names.length>0){
 
-winner.style.display="flex"
+let index=Math.floor(Math.random()names.length)
+
+winners.push(names.splice(index,1)[0])
+
+drawn++
+
+}
+
+}
+
+updateHud()
+
+let area=document.getElementById("winnerName")
+
+area.innerHTML=""
+
+area.style.fontSize=fontSize+"px"
+area.style.gridTemplateColumns="repeat("+layout+",1fr)"
+
+winners.forEach(name=>{
+
+let div=document.createElement("div")
+
+div.innerText=name
+
+area.appendChild(div)
+
+})
+
+document.getElementById("winner").style.display="flex"
 
 confetti({
-particleCount:300,
-spread:120
+particleCount:200,
+spread:100,
+origin:{y:0.6}
 })
 
 }
 
+/ ===== 關閉得獎 ===== */
+
 function closeWinner(){
 
-winner.style.display="none"
+document.getElementById("winner").style.display="none"
 
 }
 
