@@ -17,16 +17,16 @@
             font-family: "Microsoft JhengHei", sans-serif;
         }
 
-        /* 關鍵修正：對應截圖中的 ready.jpg.JPG */
         .main-stage {
             position: relative;
             width: 100vw;
             height: 100vh;
+            /* 修正為你截圖中的檔名：ready.jpg.JPG */
             background: url('ready.jpg.JPG') center/cover no-repeat;
             transition: 0.5s;
         }
 
-        /* 人數顯示定位：直接顯示在標題下方的橫條區 */
+        /* 統計人數顯示區 */
         #dynamic-stats {
             position: absolute;
             top: 50.3%; 
@@ -34,15 +34,15 @@
             transform: translate(-50%, -50%);
             display: flex;
             justify-content: center;
-            gap: 60px; 
+            gap: 50px; 
             z-index: 5;
             width: 100%;
             pointer-events: none;
         }
 
         .stat-item {
-            color: #fccd4d; /* 金色文字 */
-            font-size: 24px;
+            color: #fccd4d; 
+            font-size: 22px; 
             font-weight: bold;
             letter-spacing: 2px;
             text-shadow: 2px 2px 4px rgba(0,0,0,1);
@@ -50,7 +50,7 @@
             align-items: center;
         }
 
-        /* 齒輪與按鈕微調 */
+        /* 齒輪設定按鈕 */
         #settings-btn {
             position: absolute;
             top: 20px; left: 20px;
@@ -62,6 +62,7 @@
             font-size: 24px;
         }
 
+        /* 靜音控制按鈕 */
         #music-btn {
             position: absolute;
             top: 20px; right: 20px;
@@ -71,7 +72,7 @@
             font-size: 24px;
         }
 
-        /* 點擊「開始抽獎」的透明範圍 */
+        /* 抽獎按鈕點擊透明區 */
         #draw-trigger {
             position: absolute;
             width: 25%; height: 8%;
@@ -98,7 +99,7 @@
         .rolling-name { font-size: 100px; color: white; font-weight: bold; text-shadow: 0 0 40px #fccd4d; }
         .winner-name { font-size: 110px; color: white; font-weight: bold; text-shadow: 0 0 50px #fccd4d; text-align: center; white-space: pre-wrap; line-height: 1.2; }
 
-        /* 設定面板 */
+        /* 後台設定面板 */
         #admin-panel {
             position: fixed;
             top: 0; left: 0;
@@ -137,7 +138,7 @@
         </div>
 
         <div id="winner-ui" onclick="reset()">
-            <div style="color:#fccd4d; font-size:30px; margin-bottom:20px; letter-spacing:12px;">天選之人</div>
+            <div style="color:#fccd4d; font-size:30px; margin-bottom:20px; letter-spacing:12px;">恭喜得獎</div>
             <div id="winner-name" class="winner-name"></div>
             <div style="color:#aaa; margin-top:50px;">點擊畫面繼續</div>
         </div>
@@ -146,5 +147,62 @@
     <div id="admin-panel">
         <div class="admin-content">
             <h2 style="color:#fccd4d; text-align: center;">系統設定面板</h2>
-            <label>名單 (一人一行)</label>
-            <textarea id="admin-names" class="admin-input" rows="10" placeholder="請在此
+            <label>抽獎名單 (一人一行)</label>
+            <textarea id="admin-names" class="admin-input" rows="10" placeholder="請貼入名單..."></textarea>
+            
+            <label>單次抽出人數</label>
+            <input type="number" id="admin-per" class="admin-input" value="1">
+
+            <label>得獎名字字體大小</label>
+            <input type="text" id="admin-size" class="admin-input" value="110px">
+
+            <button class="save-btn" onclick="hideAdmin()">儲存並更新名單</button>
+        </div>
+    </div>
+
+    <audio id="bgm" src="music.mp3.m4a" loop></audio>
+
+    <script>
+        let rolling = false;
+        let timer;
+        let musicOn = false;
+        let pulledCount = 0;
+        let config = { names: [], perDraw: 1, fontSize: "110px" };
+
+        const audio = document.getElementById("bgm");
+
+        function updateStatUI() {
+            document.getElementById("count-remain").innerText = config.names.length;
+            document.getElementById("count-pulled").innerText = pulledCount;
+        }
+
+        function toggleMusic() {
+            if (musicOn) {
+                audio.pause();
+                document.getElementById("music-btn").innerText = "🔇";
+            } else {
+                audio.play();
+                document.getElementById("music-btn").innerText = "🔊";
+            }
+            musicOn = !musicOn;
+        }
+
+        function showAdmin() { document.getElementById("admin-panel").style.display = "block"; }
+
+        function hideAdmin() {
+            const rawNames = document.getElementById("admin-names").value;
+            config.names = rawNames.split("\n").map(n => n.trim()).filter(n => n !== "");
+            config.perDraw = parseInt(document.getElementById("admin-per").value) || 1;
+            config.fontSize = document.getElementById("admin-size").value;
+            
+            pulledCount = 0; 
+            updateStatUI();
+            document.getElementById("admin-panel").style.display = "none";
+        }
+
+        function runLottery() {
+            if (rolling || config.names.length === 0) return;
+            rolling = true;
+            document.getElementById("rolling-ui").style.display = "flex";
+            timer = setInterval(() => {
+                document.getElementById
