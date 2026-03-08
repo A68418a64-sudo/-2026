@@ -19,23 +19,21 @@ overflow:hidden;
 font-family:sans-serif;
 }
 
-/* 主畫面 */
-
 #stage{
 position:relative;
 width:100vw;
 height:100vh;
-background:url("yahu.jpg.PNG") center/cover no-repeat;
+background:url("yahu.jpg") center/cover no-repeat;
 transition:0.5s;
 }
 
-/* READY 畫面 */
+/* 第二畫面 /
 
 .ready{
-background:url("ready.jpg.JPG") center/cover no-repeat !important;
+background:url("準備.jpg") center/cover no-repeat !important;
 }
 
-/* 第一頁開始 */
+/ 開始遊戲 /
 
 #startBtn{
 position:absolute;
@@ -47,7 +45,7 @@ transform:translate(-50%,-50%);
 cursor:pointer;
 }
 
-/* 開始抽獎 */
+/ 抽獎按鈕 /
 
 #drawBtn{
 position:absolute;
@@ -60,7 +58,7 @@ cursor:pointer;
 display:none;
 }
 
-/* 抽獎滾動 */
+/ 抽獎滾動 /
 
 #rolling{
 position:absolute;
@@ -82,7 +80,7 @@ font-weight:bold;
 text-shadow:0 0 40px gold;
 }
 
-/* 得獎 */
+/ 得獎 /
 
 #winner{
 position:absolute;
@@ -129,7 +127,7 @@ text-align:center;
 
 </div>
 
-<audio id="bgm" src="music.mp3.m4a" loop></audio>
+<audio id="bgm" src="music.m4a" loop></audio>
 
 <script>
 
@@ -140,7 +138,6 @@ let names=[
 "張雅婷",
 "李佳玲",
 "黃建宏",
-"吳宗憲",
 "劉德華"
 ]
 
@@ -156,7 +153,7 @@ const winnerUI=document.getElementById("winner")
 const winnerName=document.getElementById("winnerName")
 const audio=document.getElementById("bgm")
 
-/* 第一畫面 → READY */
+/ 第一畫面 → 第二畫面 /
 
 startBtn.onclick=function(){
 
@@ -170,7 +167,7 @@ audio.play()
 
 }
 
-/* 開始抽獎 */
+/ 開始抽獎 */
 
 drawBtn.onclick=function(){
 
@@ -182,7 +179,7 @@ rollingUI.style.display="flex"
 
 timer=setInterval(()=>{
 
-let name=names[Math.floor(Math.random()*names.length)]
+let name=names[Math.floor(Math.random()names.length)]
 
 rollingName.innerText=name
 
@@ -200,13 +197,13 @@ showWinner()
 
 }
 
-/* 顯示得獎 */
+/ 顯示得獎 */
 
 function showWinner(){
 
 rollingUI.style.display="none"
 
-let index=Math.floor(Math.random()*names.length)
+let index=Math.floor(Math.random()names.length)
 
 let win=names.splice(index,1)[0]
 
@@ -222,7 +219,7 @@ origin:{y:0.6}
 
 }
 
-/* 點擊繼續 */
+/ 點擊繼續 */
 
 winnerUI.onclick=function(){
 
