@@ -13,149 +13,159 @@
 <style>
 
 body,html{
-
 margin:0;
 padding:0;
 height:100%;
 width:100%;
 overflow:hidden;
 background:black;
-
+font-family:sans-serif;
 }
 
 .stage{
-
 position:relative;
 width:100vw;
 height:100vh;
-
 background:url("yahu.jpg.PNG") center/cover no-repeat;
-
 }
 
 .ready-mode{
-
 background:url("ready.jpg.PNG") center/cover no-repeat;
-
 }
 
-#music-btn{
+/* 音樂按鈕 */
 
+#music-btn{
 position:fixed;
 top:25px;
 right:25px;
-
 width:55px;
 height:55px;
-
 border-radius:50%;
-
 background:rgba(0,0,0,0.7);
-
 color:white;
-
 font-size:28px;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 cursor:pointer;
-
 z-index:9999;
-
 }
 
-#ready-btn{
+/* 系統設定按鈕 */
 
+#setting-btn{
+position:fixed;
+bottom:25px;
+right:25px;
+width:60px;
+height:60px;
+border-radius:50%;
+background:rgba(0,0,0,0.7);
+color:white;
+font-size:30px;
+display:flex;
+align-items:center;
+justify-content:center;
+cursor:pointer;
+z-index:9999;
+}
+
+/* READY區 */
+
+#ready-btn{
 position:absolute;
 top:52%;
 left:50%;
-
 transform:translate(-50%,-50%);
-
 width:40%;
 height:20%;
-
 cursor:pointer;
-
 }
 
 #draw-btn{
-
 position:absolute;
 top:75%;
 left:50%;
-
 transform:translate(-50%,-50%);
-
 width:30%;
 height:12%;
-
 cursor:pointer;
-
 display:none;
-
 }
 
-#rolling{
+/* 滾動抽獎 */
 
+#rolling{
 position:absolute;
 top:0;
 left:0;
-
 width:100%;
 height:100%;
-
 background:rgba(0,0,0,0.9);
-
 display:none;
-
 align-items:center;
 justify-content:center;
-
 flex-direction:column;
-
 z-index:50;
-
 }
 
 .roll-name{
-
 font-size:90px;
 color:white;
 text-shadow:0 0 40px gold;
-
 }
 
-#winner{
+/* 中獎 */
 
+#winner{
 position:absolute;
 top:0;
 left:0;
-
 width:100%;
 height:100%;
-
 background:rgba(0,0,0,0.9);
-
 display:none;
-
 align-items:center;
 justify-content:center;
-
 flex-direction:column;
-
 z-index:60;
-
 }
 
 .win-name{
-
 font-size:100px;
 color:white;
 text-shadow:0 0 60px gold;
+}
 
+/* 設定視窗 */
+
+#setting-panel{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.95);
+display:none;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+z-index:10000;
+}
+
+textarea{
+width:60%;
+height:200px;
+font-size:18px;
+padding:10px;
+}
+
+button{
+margin-top:20px;
+padding:10px 20px;
+font-size:18px;
+cursor:pointer;
 }
 
 </style>
@@ -165,6 +175,8 @@ text-shadow:0 0 60px gold;
 <body>
 
 <div id="music-btn">🔊</div>
+
+<div id="setting-btn">⚙️</div>
 
 <div id="stage" class="stage">
 
@@ -194,6 +206,20 @@ text-shadow:0 0 60px gold;
 
 </div>
 
+<!-- 設定面板 -->
+
+<div id="setting-panel">
+
+<h2 style="color:white">系統設定 - 名單</h2>
+
+<textarea id="name-input" placeholder="一行一個名字"></textarea>
+
+<br>
+
+<button onclick="saveNames()">儲存</button>
+
+</div>
+
 <audio id="bgm">
 
 <source src="music.mp3.m4a">
@@ -202,24 +228,24 @@ text-shadow:0 0 60px gold;
 
 <script>
 
-const audio = document.getElementById("bgm")
+const audio=document.getElementById("bgm")
 
-const musicBtn = document.getElementById("music-btn")
+const musicBtn=document.getElementById("music-btn")
 
-let musicOn = true
+let musicOn=true
 
-/* 強制循環播放 */
+/* 強制循環 */
 
 audio.addEventListener("ended",function(){
 
-audio.currentTime = 0
+audio.currentTime=0
 audio.play()
 
 })
 
 /* 音樂按鈕 */
 
-musicBtn.onclick = () => {
+musicBtn.onclick=()=>{
 
 if(musicOn){
 
@@ -239,7 +265,7 @@ musicOn=!musicOn
 
 /* READY */
 
-document.getElementById("ready-btn").onclick = () => {
+document.getElementById("ready-btn").onclick=()=>{
 
 document.getElementById("stage").classList.add("ready-mode")
 
@@ -253,7 +279,9 @@ audio.play()
 /* 抽獎 */
 
 let names=[]
+
 let rolling=false
+
 let timer
 
 document.getElementById("draw-btn").onclick=()=>{
@@ -262,11 +290,9 @@ if(rolling) return
 
 if(names.length==0){
 
-let input=prompt("輸入抽獎名單，用逗號分隔")
+alert("請先輸入名單")
 
-if(!input) return
-
-names=input.split(",")
+return
 
 }
 
@@ -315,6 +341,24 @@ spread:120,
 origin:{y:0.6}
 
 })
+
+}
+
+/* 設定 */
+
+document.getElementById("setting-btn").onclick=()=>{
+
+document.getElementById("setting-panel").style.display="flex"
+
+}
+
+function saveNames(){
+
+let text=document.getElementById("name-input").value
+
+names=text.split("\n").filter(n=>n.trim()!="")
+
+document.getElementById("setting-panel").style.display="none"
 
 }
 
