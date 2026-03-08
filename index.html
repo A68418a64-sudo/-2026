@@ -1,37 +1,54 @@
+al_2026"}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>抽獎系統</title>
+<title>2026 春酒抽獎</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 
 body{
 margin:0;
 font-family:sans-serif;
-background:#000;
+background:black;
 color:white;
 overflow:hidden;
 }
 
-/* 左上角統計 /
+/* 背景 /
+
+.stage{
+position:fixed;
+width:100%;
+height:100vh;
+background:url("yahu.jpg") center/cover no-repeat;
+}
+
+.stage.ready{
+background:url("ready.jpg") center/cover no-repeat;
+}
+
+/ 左上角 /
 
 .hud{
 position:fixed;
 top:20px;
-left:20px;
-font-size:18px;
-line-height:28px;
+left:25px;
+font-size:20px;
+line-height:32px;
+color:#f2d089;
 }
 
-/ 右上角 /
+/ 右上 /
 
 .topbar{
 position:fixed;
 top:20px;
-right:20px;
-font-size:24px;
+right:30px;
+font-size:26px;
 display:flex;
 gap:15px;
 }
@@ -40,7 +57,7 @@ gap:15px;
 cursor:pointer;
 }
 
-/ 主畫面 /
+/ 中央 /
 
 .center{
 position:absolute;
@@ -56,11 +73,8 @@ padding:20px 60px;
 cursor:pointer;
 }
 
-/ READY /
-
 .ready{
 display:none;
-text-align:center;
 }
 
 .ready h1{
@@ -69,18 +83,18 @@ margin:0;
 }
 
 .ready p{
-font-size:30px;
+font-size:36px;
 }
 
 .draw-btn{
-font-size:30px;
+font-size:28px;
 padding:15px 40px;
 cursor:pointer;
 }
 
-/ 滾動視窗 /
+/ 滾動 /
 
-.rollModal{
+.roll{
 position:fixed;
 top:0;
 left:0;
@@ -93,13 +107,14 @@ justify-content:center;
 flex-direction:column;
 }
 
-.rollName{
-font-size:100px;
+.roll-name{
+font-size:120px;
+text-shadow:0 0 30px gold;
 }
 
-/ 得獎視窗 /
+/ 得獎 /
 
-.winnerModal{
+.winner{
 position:fixed;
 top:0;
 left:0;
@@ -113,19 +128,30 @@ flex-direction:column;
 text-align:center;
 }
 
-.winnerTitle{
+.winner-title{
 font-size:40px;
-margin-bottom:30px;
+margin-bottom:40px;
 }
 
-.winnerList{
+.winner-list{
 display:grid;
 gap:20px;
 }
 
+/ 中獎紀錄 /
+
+.history{
+position:fixed;
+bottom:20px;
+left:25px;
+font-size:16px;
+max-height:200px;
+overflow:auto;
+}
+
 / 設定 */
 
-.settings{
+.admin{
 position:fixed;
 top:0;
 left:0;
@@ -134,6 +160,7 @@ height:100%;
 background:black;
 display:none;
 padding:40px;
+overflow:auto;
 }
 
 textarea,input{
@@ -152,6 +179,8 @@ cursor:pointer;
 
 <body>
 
+<div class="stage" id="stage"></div>
+
 <div class="hud">
 <div>👥 參與人數：<span id="total">0</span></div>
 <div>🎯 已抽人數：<span id="drawn">0</span></div>
@@ -160,7 +189,7 @@ cursor:pointer;
 
 <div class="topbar">
 <span onclick="toggleMusic()">🔊</span>
-<span onclick="openSettings()">⚙</span>
+<span onclick="openAdmin()">⚙</span>
 </div>
 
 <div class="center" id="startScreen">
@@ -173,18 +202,20 @@ cursor:pointer;
 <button class="draw-btn" onclick="startRoll()">開始抽獎</button>
 </div>
 
-<div class="rollModal" id="rollModal">
-<div class="rollName" id="rollName">王小明</div>
+<div class="roll" id="roll">
+<div class="roll-name" id="rollName">抽獎中</div>
 </div>
 
-<div class="winnerModal" id="winnerModal">
-<div class="winnerTitle">🎉 天選之人 🎉</div>
-<div class="winnerList" id="winnerList"></div>
+<div class="winner" id="winner">
+<div class="winner-title">🎉 天選之人 🎉</div>
+<div class="winner-list" id="winnerList"></div>
 </div>
 
-<div class="settings" id="settings">
+<div class="history" id="history"></div>
 
-<h2>系統設定</h2>
+<div class="admin" id="admin">
+
+<h2>抽獎設定</h2>
 
 <p>參與名單 (一行一人)</p>
 <textarea id="names" rows="10"></textarea>
@@ -192,12 +223,14 @@ cursor:pointer;
 <p>一次抽幾人</p>
 <input type="number" id="drawCount" value="1">
 
-<p>得獎名字字體大小</p>
+<p>中獎字體大小</p>
 <input type="number" id="fontSize" value="100">
 
-<button onclick="saveSettings()">儲存</button>
+<button onclick="saveAdmin()">儲存</button>
 
 </div>
+
+<audio id="bgm" src="music.m4a" loop></audio>
 
 <script>
 
@@ -205,27 +238,50 @@ let names=[]
 let drawn=0
 let drawCount=1
 let fontSize=100
+let round=1
+
 let timer
+
+const audio=document.getElementById("bgm")
+
+function toggleMusic(){
+
+if(audio.paused){
+audio.play()
+}else{
+audio.pause()
+}
+
+}
 
 function enterReady(){
 
+document.getElementById("stage").classList.add("ready")
+
 document.getElementById("startScreen").style.display="none"
+
 document.getElementById("readyScreen").style.display="block"
+
+audio.play()
 
 }
 
 function startRoll(){
 
-if(names.length===0){
+if(names.length==0){
+
 alert("請先設定名單")
+
 return
+
 }
 
-document.getElementById("rollModal").style.display="flex"
+document.getElementById("roll").style.display="flex"
 
 timer=setInterval(()=>{
 
 let n=names[Math.floor(Math.random()*names.length)]
+
 document.getElementById("rollName").innerText=n
 
 },80)
@@ -233,6 +289,7 @@ document.getElementById("rollName").innerText=n
 setTimeout(()=>{
 
 clearInterval(timer)
+
 showWinner()
 
 },4000)
@@ -241,13 +298,13 @@ showWinner()
 
 function showWinner(){
 
-document.getElementById("rollModal").style.display="none"
+document.getElementById("roll").style.display="none"
 
 let winners=[]
 
 for(let i=0;i<drawCount;i++){
 
-if(names.length===0)break
+if(names.length==0) break
 
 let index=Math.floor(Math.random()*names.length)
 
@@ -265,6 +322,8 @@ area.innerHTML=""
 
 area.style.fontSize=fontSize+"px"
 
+area.style.gridTemplateColumns="repeat(2,1fr)"
+
 winners.forEach(n=>{
 
 let div=document.createElement("div")
@@ -275,25 +334,55 @@ area.appendChild(div)
 
 })
 
-document.getElementById("winnerModal").style.display="flex"
+document.getElementById("winner").style.display="flex"
+
+confetti({
+particleCount:300,
+spread:120,
+origin:{y:0.6}
+})
+
+updateHistory(winners)
+
+}
+
+function updateHistory(list){
+
+let h=document.getElementById("history")
+
+let html="<div>第"+round+"輪</div>"
+
+list.forEach(n=>{
+
+html+="<div>"+n+"</div>"
+
+})
+
+html+="<br>"
+
+h.innerHTML+=html
+
+round++
 
 }
 
 function updateHUD(){
 
 document.getElementById("total").innerText=names.length+drawn
+
 document.getElementById("drawn").innerText=drawn
+
 document.getElementById("remain").innerText=names.length
 
 }
 
-function openSettings(){
+function openAdmin(){
 
-document.getElementById("settings").style.display="block"
+document.getElementById("admin").style.display="block"
 
 }
 
-function saveSettings(){
+function saveAdmin(){
 
 names=document.getElementById("names").value.split("\n").filter(n=>n)
 
@@ -303,17 +392,16 @@ fontSize=parseInt(document.getElementById("fontSize").value)
 
 drawn=0
 
+round=1
+
+document.getElementById("history").innerHTML=""
+
 updateHUD()
 
-document.getElementById("settings").style.display="none"
+document.getElementById("admin").style.display="none"
 
-}
-
-function toggleMusic(){
-alert("音樂功能可自行加入")
 }
 
 </script>
 
-</body>
-</html>
+</body
