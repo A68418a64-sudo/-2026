@@ -1,6 +1,6 @@
+ery001"}
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
 
 <meta charset="UTF-8">
@@ -33,47 +33,59 @@ background:url("yahu.jpg.PNG") center/cover no-repeat;
 background:url("ready.jpg.PNG") center/cover no-repeat;
 }
 
-/* 控制按鈕列 */
+/* 音樂按鈕 /
 
-#top-bar{
-
+#music-btn{
 position:fixed;
-
 top:20px;
 right:20px;
 
-display:flex;
-
-gap:10px;
-
-z-index:9999;
-
-}
-
-/* 小圖示按鈕 */
-
-.control-btn{
-
-width:50px;
-height:50px;
+width:55px;
+height:55px;
 
 border-radius:50%;
 
-background:rgba(0,0,0,0.7);
-
+background:black;
 color:white;
-
-font-size:24px;
 
 display:flex;
 align-items:center;
 justify-content:center;
 
+font-size:28px;
+
 cursor:pointer;
 
+z-index:99999;
 }
 
-/* READY區 */
+/ 系統設定按鈕 /
+
+#setting-btn{
+position:fixed;
+top:20px;
+left:20px;
+
+width:55px;
+height:55px;
+
+border-radius:50%;
+
+background:black;
+color:white;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:28px;
+
+cursor:pointer;
+
+z-index:99999;
+}
+
+/ READY區 /
 
 #ready-btn{
 position:absolute;
@@ -96,7 +108,7 @@ cursor:pointer;
 display:none;
 }
 
-/* 抽獎滾動 */
+/ 抽獎滾動 /
 
 #rolling{
 position:absolute;
@@ -118,7 +130,7 @@ color:white;
 text-shadow:0 0 40px gold;
 }
 
-/* 中獎 */
+/ 中獎 /
 
 #winner{
 position:absolute;
@@ -140,14 +152,12 @@ color:white;
 text-shadow:0 0 60px gold;
 }
 
-/* 設定視窗 */
+/ 設定面板 /
 
 #setting-panel{
-
 position:fixed;
 top:0;
 left:0;
-
 width:100%;
 height:100%;
 
@@ -159,31 +169,21 @@ flex-direction:column;
 align-items:center;
 justify-content:center;
 
-z-index:10000;
-
+z-index:100000;
 }
 
 textarea{
-
 width:60%;
 height:200px;
-
 font-size:18px;
-
 padding:10px;
-
 }
 
 button{
-
 margin-top:20px;
-
 padding:10px 20px;
-
 font-size:18px;
-
 cursor:pointer;
-
 }
 
 </style>
@@ -192,15 +192,9 @@ cursor:pointer;
 
 <body>
 
-<!-- 控制列 -->
+<div id="setting-btn">⚙️</div>
 
-<div id="top-bar">
-
-<div id="music-btn" class="control-btn">🔊</div>
-
-<div id="setting-btn" class="control-btn">⚙️</div>
-
-</div>
+<div id="music-btn">🔊</div>
 
 <div id="stage" class="stage">
 
@@ -230,8 +224,6 @@ cursor:pointer;
 
 </div>
 
-<!-- 設定面板 -->
-
 <div id="setting-panel">
 
 <h2 style="color:white">輸入抽獎名單</h2>
@@ -256,7 +248,7 @@ const audio=document.getElementById("bgm")
 
 let musicOn=true
 
-/* 強制循環 */
+/ 強制循環播放 /
 
 audio.addEventListener("ended",function(){
 
@@ -265,19 +257,19 @@ audio.play()
 
 })
 
-/* 音樂控制 */
+/ 音樂開關 /
 
-document.getElementById("music-btn").onclick=()=>{
+document.getElementById("music-btn").onclick=function(){
 
 if(musicOn){
 
 audio.pause()
-document.getElementById("music-btn").innerHTML="🔇"
+this.innerHTML="🔇"
 
 }else{
 
 audio.play()
-document.getElementById("music-btn").innerHTML="🔊"
+this.innerHTML="🔊"
 
 }
 
@@ -285,9 +277,9 @@ musicOn=!musicOn
 
 }
 
-/* READY */
+/ READY /
 
-document.getElementById("ready-btn").onclick=()=>{
+document.getElementById("ready-btn").onclick=function(){
 
 document.getElementById("stage").classList.add("ready-mode")
 
@@ -298,20 +290,20 @@ audio.play()
 
 }
 
-/* 名單 */
+/ 抽獎 */
 
 let names=[]
 
 let rolling=false
 let timer
 
-document.getElementById("draw-btn").onclick=()=>{
+document.getElementById("draw-btn").onclick=function(){
 
 if(rolling) return
 
 if(names.length==0){
 
-alert("請先設定名單")
+alert("請先按⚙️輸入名單")
 
 return
 
@@ -323,7 +315,7 @@ document.getElementById("rolling").style.display="flex"
 
 timer=setInterval(()=>{
 
-let name=names[Math.floor(Math.random()*names.length)]
+let name=names[Math.floor(Math.random()names.length)]
 
 document.getElementById("roll-name").innerText=name
 
@@ -341,13 +333,13 @@ showWinner()
 
 }
 
-/* 中獎 */
+/ 中獎 */
 
 function showWinner(){
 
 document.getElementById("rolling").style.display="none"
 
-let index=Math.floor(Math.random()*names.length)
+let index=Math.floor(Math.random()names.length)
 
 let win=names.splice(index,1)
 
@@ -365,15 +357,15 @@ origin:{y:0.6}
 
 }
 
-/* 開啟設定 */
+/ 開設定 /
 
-document.getElementById("setting-btn").onclick=()=>{
+document.getElementById("setting-btn").onclick=function(){
 
 document.getElementById("setting-panel").style.display="flex"
 
 }
 
-/* 儲存名單 */
+/ 儲存名單 */
 
 function saveNames(){
 
@@ -387,6 +379,4 @@ document.getElementById("setting-panel").style.display="none"
 
 </script>
 
-</body>
-
-</html>
+</bod
