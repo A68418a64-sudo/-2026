@@ -1,11 +1,9 @@
-2"}
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-
 <title>亞護開發 2026 春酒抽獎</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
@@ -22,9 +20,13 @@ font-family:sans-serif;
 background:black;
 }
 
+/* 主畫面背景 */
+
 .stage{
-position:relative;
-width:100vw;
+position:fixed;
+top:0;
+left:0;
+width:100%;
 height:100vh;
 background:url("yahu.jpg") center/cover no-repeat;
 }
@@ -33,10 +35,10 @@ background:url("yahu.jpg") center/cover no-repeat;
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 左上資訊 /
+/* 左上資訊 */
 
 .hud{
-position:absolute;
+position:fixed;
 top:30px;
 left:40px;
 color:#f2d089;
@@ -45,10 +47,10 @@ line-height:36px;
 display:none;
 }
 
-/ 右上 /
+/* 右上控制 */
 
 .topbar{
-position:absolute;
+position:fixed;
 top:25px;
 right:35px;
 display:flex;
@@ -61,7 +63,7 @@ color:white;
 cursor:pointer;
 }
 
-/ 開始按鈕 /
+/* 開始按鈕 */
 
 .start-btn{
 position:absolute;
@@ -73,7 +75,7 @@ height:90px;
 cursor:pointer;
 }
 
-/ READY /
+/* READY 畫面 */
 
 .ready-panel{
 position:absolute;
@@ -105,10 +107,10 @@ background:#f2b63d;
 cursor:pointer;
 }
 
-/ 抽獎動畫 /
+/* 抽獎動畫 */
 
 .rolling{
-position:absolute;
+position:fixed;
 top:0;
 left:0;
 width:100%;
@@ -126,10 +128,10 @@ font-size:120px;
 text-shadow:0 0 40px gold;
 }
 
-/ 得獎畫面 /
+/* 得獎畫面 */
 
 .winner{
-position:absolute;
+position:fixed;
 top:0;
 left:0;
 width:100%;
@@ -157,7 +159,7 @@ text-shadow:0 0 40px gold;
 max-width:80%;
 }
 
-/ 系統設定 */
+/* 系統設定 */
 
 .admin{
 position:fixed;
@@ -197,45 +199,32 @@ cursor:pointer;
 <div class="stage" id="stage">
 
 <div class="hud" id="hud">
-
 <div>👥 參與人數：<span id="total">0</span></div>
 <div>🎯 已抽人數：<span id="drawn">0</span></div>
 <div>📉 剩餘人數：<span id="remain">0</span></div>
-
 </div>
 
 <div class="topbar">
-
 <div onclick="toggleMusic()" id="musicBtn">🔊</div>
 <div onclick="openAdmin()">⚙</div>
-
 </div>
 
 <div class="start-btn" onclick="startGame()"></div>
 
 <div class="ready-panel" id="readyPanel">
-
 <div class="ready-title">READY</div>
 <div class="ready-sub">準備開獎</div>
-
 <button class="draw-btn" onclick="startLottery()">開始抽獎</button>
-
 </div>
 
 <div class="rolling" id="rolling">
-
 <div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
-
 <div id="rollingName" class="rolling-name"></div>
-
 </div>
 
 <div class="winner" id="winner" onclick="closeWinner()">
-
 <div class="winner-title">🎉 天選之人 🎉</div>
-
 <div id="winnerName" class="winner-name"></div>
-
 </div>
 
 </div>
@@ -245,15 +234,12 @@ cursor:pointer;
 <h2>抽獎系統設定</h2>
 
 <p>參與名單 (一行一人)</p>
-
 <textarea id="names" rows="10"></textarea>
 
 <p>一次抽幾人</p>
-
 <input id="perDraw" type="number" value="1">
 
 <p>得獎名單字體大小</p>
-
 <input id="fontSize" type="number" value="80">
 
 <button onclick="saveAdmin()">儲存</button>
@@ -289,23 +275,17 @@ audio.play()
 function toggleMusic(){
 
 if(audio.paused){
-
 audio.play()
 document.getElementById("musicBtn").innerText="🔊"
-
 }else{
-
 audio.pause()
 document.getElementById("musicBtn").innerText="🔇"
-
 }
 
 }
 
 function openAdmin(){
-
 document.getElementById("admin").style.display="block"
-
 }
 
 function saveAdmin(){
@@ -318,7 +298,7 @@ perDraw=parseInt(document.getElementById("perDraw").value)
 
 winnerFontSize=parseInt(document.getElementById("fontSize").value)
 
-document.getElementById("winnerName").style.fontSize =
+document.getElementById("winnerName").style.fontSize=
 winnerFontSize+"px"
 
 total=names.length
@@ -343,10 +323,8 @@ document.getElementById("remain").innerText=remain
 function startLottery(){
 
 if(names.length==0){
-
 alert("請先設定名單")
 return
-
 }
 
 document.getElementById("rolling").style.display="flex"
@@ -391,14 +369,10 @@ drawn++
 
 updateHud()
 
-winners=winners.slice(0,20)
-
 let html=""
 
 winners.forEach(name=>{
-
 html+="<div>"+name+"</div>"
-
 })
 
 document.getElementById("winnerName").innerHTML=html
@@ -414,12 +388,10 @@ origin:{y:0.6}
 }
 
 function closeWinner(){
-
 document.getElementById("winner").style.display="none"
-
 }
 
 </script>
 
 </body>
-</ht
+</html>
