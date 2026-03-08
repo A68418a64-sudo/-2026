@@ -1,4 +1,3 @@
-}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -6,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>春酒抽獎系統</title>
+<title>2026亞護春酒抽獎</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
@@ -15,17 +14,17 @@
 body,html{
 margin:0;
 padding:0;
-width:100%;
 height:100%;
+width:100%;
 overflow:hidden;
-font-family:sans-serif;
 background:black;
+font-family:sans-serif;
 }
 
 .stage{
-width:100%;
-height:100%;
 position:relative;
+width:100vw;
+height:100vh;
 background:url("yahu.jpg.PNG") center/cover no-repeat;
 }
 
@@ -33,7 +32,7 @@ background:url("yahu.jpg.PNG") center/cover no-repeat;
 background:url("ready.jpg.PNG") center/cover no-repeat;
 }
 
-/* 音樂 /
+/* 按鈕 /
 
 #music-btn{
 position:fixed;
@@ -52,8 +51,6 @@ cursor:pointer;
 z-index:9999;
 }
 
-/ 設定 /
-
 #setting-btn{
 position:fixed;
 top:20px;
@@ -71,7 +68,7 @@ cursor:pointer;
 z-index:9999;
 }
 
-/ READY區 /
+/ READY /
 
 #ready-btn{
 position:absolute;
@@ -137,7 +134,7 @@ text-shadow:0 0 40px gold;
 margin:10px;
 }
 
-/ 設定面板 /
+/ 設定面板 */
 
 #setting-panel{
 position:fixed;
@@ -154,27 +151,32 @@ z-index:10000;
 color:white;
 }
 
+.setting-box{
+width:70%;
+max-width:700px;
+}
+
 textarea{
-width:60%;
+width:100%;
 height:200px;
 font-size:18px;
 padding:10px;
+margin-top:10px;
 }
 
 input{
-width:100px;
+width:120px;
 font-size:18px;
 padding:5px;
+margin-top:10px;
 }
 
 button{
-margin-top:15px;
-padding:10px 20px;
+margin-top:20px;
+padding:10px 25px;
 font-size:18px;
 cursor:pointer;
 }
-
-/ 統計 */
 
 #stats{
 position:fixed;
@@ -203,17 +205,23 @@ border-radius:10px;
 <div id="draw-btn"></div>
 
 <div id="rolling">
+
 <div style="font-size:40px;color:#fccd4d;margin-bottom:40px">
 抽獎進行中
 </div>
+
 <div id="roll-name" class="roll-name"></div>
+
 </div>
 
 <div id="winner">
+
 <div style="font-size:40px;color:#fccd4d;margin-bottom:30px">
 天選之人
 </div>
+
 <div id="winner-list"></div>
+
 </div>
 
 </div>
@@ -226,20 +234,24 @@ border-radius:10px;
 
 <div id="setting-panel">
 
+<div class="setting-box">
+
 <h2>系統設定</h2>
 
 <p>抽獎名單</p>
-<textarea id="name-input"></textarea>
+<textarea id="name-input" placeholder="一行一個名字"></textarea>
 
 <p>一次抽幾人</p>
-<input id="draw-count" value="1">
+<input id="draw-count" type="number" value="1">
 
 <p>抽獎次數</p>
-<input id="draw-times" value="1">
+<input id="draw-times" type="number" value="1">
 
 <br>
 
-<button onclick="saveSettings()">儲存</button>
+<button onclick="saveSettings()">儲存設定</button>
+
+</div>
 
 </div>
 
@@ -279,13 +291,7 @@ musicOn=!musicOn
 
 document.getElementById("setting-btn").onclick=function(){
 
-let panel=document.getElementById("setting-panel")
-
-if(panel.style.display==="flex"){
-panel.style.display="none"
-}else{
-panel.style.display="flex"
-}
+document.getElementById("setting-panel").style.display="flex"
 
 }
 
@@ -405,5 +411,4 @@ updateStats()
 </script>
 
 </body>
-
-</htm
+</html
