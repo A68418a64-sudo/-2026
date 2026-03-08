@@ -1,4 +1,3 @@
-_2026"}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -145,8 +144,10 @@ color:white;
 }
 
 .winner-name{
-font-size:140px;
 text-shadow:0 0 50px gold;
+display:grid;
+gap:20px;
+text-align:center;
 }
 
 / 設定 */
@@ -164,7 +165,7 @@ color:white;
 overflow:auto;
 }
 
-textarea,input{
+textarea,input,select{
 width:100%;
 padding:10px;
 margin:10px 0;
@@ -188,8 +189,6 @@ cursor:pointer;
 
 <div class="stage" id="stage">
 
-<!-- 左上資訊 -->
-
 <div class="hud" id="hud">
 
 <div>👥 參與人數：<span id="total">0</span></div>
@@ -198,8 +197,6 @@ cursor:pointer;
 
 </div>
 
-<!-- 右上 -->
-
 <div class="topbar">
 
 <div onclick="toggleMusic()" id="musicBtn">🔊</div>
@@ -207,11 +204,7 @@ cursor:pointer;
 
 </div>
 
-<!-- 第一畫面 -->
-
 <div class="start-btn" onclick="startGame()"></div>
-
-<!-- READY 畫面 -->
 
 <div class="ready-panel" id="readyPanel">
 
@@ -222,8 +215,6 @@ cursor:pointer;
 
 </div>
 
-<!-- 抽獎 -->
-
 <div class="rolling" id="rolling">
 
 <div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
@@ -231,8 +222,6 @@ cursor:pointer;
 <div id="rollingName" class="rolling-name"></div>
 
 </div>
-
-<!-- 得獎 -->
 
 <div class="winner" id="winner" onclick="closeWinner()">
 
@@ -244,19 +233,24 @@ cursor:pointer;
 
 </div>
 
-<!-- 設定 -->
-
 <div class="admin" id="admin">
 
 <h2>抽獎系統設定</h2>
 
 <p>參與名單 (一行一人)</p>
-
 <textarea id="names" rows="10"></textarea>
 
 <p>一次抽幾人</p>
-
 <input id="perDraw" type="number" value="1">
+
+<p>得獎字體大小</p>
+<input id="fontSize" type="number" value="120">
+
+<p>得獎名單排版</p>
+<select id="layout">
+<option value="1">一欄</option>
+<option value="2">兩欄</option>
+</select>
 
 <button onclick="saveAdmin()">儲存</button>
 
@@ -270,17 +264,16 @@ let names=[]
 let total=0
 let drawn=0
 let perDraw=1
+let fontSize=120
+let layout=1
 
 const audio=document.getElementById("bgm")
 
 function startGame(){
 
 document.getElementById("stage").classList.add("ready")
-
 document.querySelector(".start-btn").style.display="none"
-
 document.getElementById("readyPanel").style.display="block"
-
 document.getElementById("hud").style.display="block"
 
 audio.play()
@@ -316,6 +309,10 @@ names=document.getElementById("names").value
 .filter(n=>n.trim()!="")
 
 perDraw=parseInt(document.getElementById("perDraw").value)
+
+fontSize=parseInt(document.getElementById("fontSize").value)
+
+layout=parseInt(document.getElementById("layout").value)
 
 total=names.length
 drawn=0
@@ -387,7 +384,18 @@ drawn++
 
 updateHud()
 
-document.getElementById("winnerName").innerText=winners.join("\n")
+let area=document.getElementById("winnerName")
+
+area.innerHTML=""
+
+area.style.fontSize=fontSize+"px"
+area.style.gridTemplateColumns="repeat("+layout+",1fr)"
+
+winners.forEach(n=>{
+let div=document.createElement("div")
+div.innerText=n
+area.appendChild(div)
+})
 
 document.getElementById("winner").style.display="flex"
 
@@ -408,3 +416,4 @@ document.getElementById("winner").style.display="none"
 </script>
 
 </body>
+</html>
