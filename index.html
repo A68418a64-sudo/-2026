@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <title>亞護開發 2026 春酒抽獎</title>
 
@@ -15,9 +16,11 @@ margin:0;
 padding:0;
 width:100%;
 height:100%;
-font-family:sans-serif;
 overflow:hidden;
+font-family:sans-serif;
 }
+
+/* 主舞台 */
 
 .stage{
 width:100%;
@@ -30,7 +33,7 @@ position:relative;
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 開始按鈕 */
+/* 開始 */
 
 .start-btn{
 position:absolute;
@@ -38,55 +41,47 @@ top:60%;
 left:50%;
 transform:translate(-50%,-50%);
 width:35%;
-height:14%;
+height:15%;
 cursor:pointer;
 }
 
-/* 抽獎按鈕 */
+/* 抽獎 */
 
 .draw-btn{
 position:absolute;
-top:75%;
+top:78%;
 left:50%;
 transform:translate(-50%,-50%);
-width:25%;
-height:10%;
+width:28%;
+height:12%;
 cursor:pointer;
 }
 
-/* 人數顯示 */
+/* 左上資訊 */
 
-.counter{
+.info{
 position:absolute;
-top:28%;
-left:50%;
-transform:translateX(-50%);
+top:20px;
+left:20px;
 color:#f2d089;
-font-size:28px;
-letter-spacing:3px;
+font-size:24px;
+line-height:40px;
 }
 
-/* 系統設定 */
+/* 右上功能 */
 
-.setting{
-position:absolute;
-bottom:40px;
-left:50%;
-transform:translateX(-50%);
-color:#e0c26c;
-font-size:22px;
-cursor:pointer;
-}
-
-/* 音樂按鈕 */
-
-.music{
+.topbar{
 position:absolute;
 top:20px;
 right:20px;
-font-size:26px;
-cursor:pointer;
+display:flex;
+gap:20px;
+font-size:28px;
 color:white;
+}
+
+.topbar div{
+cursor:pointer;
 }
 
 /* 抽獎動畫 */
@@ -131,7 +126,7 @@ font-size:100px;
 text-shadow:0 0 50px gold;
 }
 
-/* 設定面板 */
+/* 系統設定 */
 
 .admin{
 position:fixed;
@@ -172,27 +167,49 @@ cursor:pointer;
 
 <div class="draw-btn" onclick="startLottery()"></div>
 
-<div class="music" onclick="toggleMusic()" id="musicBtn">🔊</div>
+<!-- 左上資訊 -->
 
-<div class="counter" id="counter">
-👥 剩餘 0 人　　已抽 0 人
+<div class="info" id="info">
+
+👥 參與人數：0<br>
+🎯 已抽人數：0<br>
+📉 剩餘人數：0
+
 </div>
 
-<div class="setting" onclick="openAdmin()">
-⚙ 系統設定
+<!-- 右上功能 -->
+
+<div class="topbar">
+
+<div onclick="toggleMusic()" id="musicBtn">🔊</div>
+
+<div onclick="openAdmin()">⚙</div>
+
 </div>
 
 <div class="rolling" id="rolling">
-<div style="font-size:32px;margin-bottom:40px">抽獎進行中</div>
+
+<div style="font-size:32px;margin-bottom:40px">
+抽獎進行中
+</div>
+
 <div id="rollingName" class="rolling-name"></div>
+
 </div>
 
 <div class="winner" id="winner" onclick="closeWinner()">
-<div style="font-size:30px;margin-bottom:30px">天選之人</div>
+
+<div style="font-size:30px;margin-bottom:30px">
+🎉 天選之人
+</div>
+
 <div id="winnerName" class="winner-name"></div>
+
 </div>
 
 </div>
+
+<!-- 系統設定 -->
 
 <div class="admin" id="admin">
 
@@ -262,18 +279,21 @@ perDraw=parseInt(document.getElementById("perDraw").value)
 total=names.length
 drawn=0
 
-updateCounter()
+updateInfo()
 
 document.getElementById("admin").style.display="none"
 
 }
 
-function updateCounter(){
+function updateInfo(){
 
 let remain=total-drawn
 
-document.getElementById("counter").innerText=
-`👥 剩餘 ${remain} 人　　已抽 ${drawn} 人`
+document.getElementById("info").innerHTML=
+
+`👥 參與人數：${total}<br>
+🎯 已抽人數：${drawn}<br>
+📉 剩餘人數：${remain}`
 
 }
 
@@ -282,7 +302,6 @@ function startLottery(){
 if(names.length==0){
 
 alert("請先設定名單")
-
 return
 
 }
@@ -327,7 +346,7 @@ drawn++
 
 }
 
-updateCounter()
+updateInfo()
 
 document.getElementById("winnerName").innerText=winners.join("\n")
 
