@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
 
 <meta charset="UTF-8">
@@ -22,8 +23,6 @@ background:black;
 
 }
 
-/* 主畫面 */
-
 .stage{
 
 position:relative;
@@ -34,20 +33,15 @@ background:url("yahu.jpg.PNG") center/cover no-repeat;
 
 }
 
-/* READY模式 */
-
 .ready-mode{
 
 background:url("ready.jpg.PNG") center/cover no-repeat;
 
 }
 
-/* 音樂按鈕 */
-
 #music-btn{
 
 position:fixed;
-
 top:25px;
 right:25px;
 
@@ -66,18 +60,15 @@ display:flex;
 align-items:center;
 justify-content:center;
 
-z-index:9999;
-
 cursor:pointer;
 
-}
+z-index:9999;
 
-/* 隱形按鈕 */
+}
 
 #ready-btn{
 
 position:absolute;
-
 top:52%;
 left:50%;
 
@@ -93,7 +84,6 @@ cursor:pointer;
 #draw-btn{
 
 position:absolute;
-
 top:75%;
 left:50%;
 
@@ -107,8 +97,6 @@ cursor:pointer;
 display:none;
 
 }
-
-/* 抽獎滾動 */
 
 #rolling{
 
@@ -135,19 +123,14 @@ z-index:50;
 .roll-name{
 
 font-size:90px;
-
 color:white;
-
 text-shadow:0 0 40px gold;
 
 }
 
-/* 中獎 */
-
 #winner{
 
 position:absolute;
-
 top:0;
 left:0;
 
@@ -170,14 +153,13 @@ z-index:60;
 .win-name{
 
 font-size:100px;
-
 color:white;
-
 text-shadow:0 0 60px gold;
 
 }
 
 </style>
+
 </head>
 
 <body>
@@ -212,7 +194,7 @@ text-shadow:0 0 60px gold;
 
 </div>
 
-<audio id="bgm" loop>
+<audio id="bgm">
 
 <source src="music.mp3.m4a">
 
@@ -220,15 +202,24 @@ text-shadow:0 0 60px gold;
 
 <script>
 
-const audio=document.getElementById("bgm")
+const audio = document.getElementById("bgm")
 
-const musicBtn=document.getElementById("music-btn")
+const musicBtn = document.getElementById("music-btn")
 
-let musicOn=true
+let musicOn = true
+
+/* 強制循環播放 */
+
+audio.addEventListener("ended",function(){
+
+audio.currentTime = 0
+audio.play()
+
+})
 
 /* 音樂按鈕 */
 
-musicBtn.onclick=()=>{
+musicBtn.onclick = () => {
 
 if(musicOn){
 
@@ -238,7 +229,6 @@ musicBtn.innerHTML="🔇"
 }else{
 
 audio.play()
-
 musicBtn.innerHTML="🔊"
 
 }
@@ -249,12 +239,13 @@ musicOn=!musicOn
 
 /* READY */
 
-document.getElementById("ready-btn").onclick=()=>{
+document.getElementById("ready-btn").onclick = () => {
 
 document.getElementById("stage").classList.add("ready-mode")
 
 document.getElementById("draw-btn").style.display="block"
 
+audio.currentTime=0
 audio.play()
 
 }
@@ -262,7 +253,6 @@ audio.play()
 /* 抽獎 */
 
 let names=[]
-
 let rolling=false
 let timer
 
@@ -331,4 +321,5 @@ origin:{y:0.6}
 </script>
 
 </body>
+
 </html>
