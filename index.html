@@ -1,3 +1,4 @@
+_2026"}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -11,72 +12,50 @@
 
 <style>
 
-body,html{
+html,body{
 margin:0;
 padding:0;
 width:100%;
 height:100%;
 overflow:hidden;
 font-family:sans-serif;
+background:black;
 }
-
-/* 主舞台 */
 
 .stage{
-width:100%;
-height:100%;
-background:url("yahu.jpg") center/cover no-repeat;
 position:relative;
+width:100vw;
+height:100vh;
+background:url("yahu.jpg") center/cover no-repeat;
 }
 
-.ready{
+/* READY 畫面 /
+
+.stage.ready{
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 開始 */
+/ 左上 HUD /
 
-.start-btn{
+.hud{
 position:absolute;
-top:60%;
-left:50%;
-transform:translate(-50%,-50%);
-width:35%;
-height:15%;
-cursor:pointer;
-}
-
-/* 抽獎 */
-
-.draw-btn{
-position:absolute;
-top:78%;
-left:50%;
-transform:translate(-50%,-50%);
-width:28%;
-height:12%;
-cursor:pointer;
-}
-
-/* 左上資訊 */
-
-.info{
-position:absolute;
-top:20px;
-left:20px;
+top:30px;
+left:40px;
 color:#f2d089;
-font-size:24px;
-line-height:40px;
+font-size:22px;
+line-height:36px;
+display:none;
 }
 
-/* 右上功能 */
+/ 右上功能 /
 
 .topbar{
 position:absolute;
-top:20px;
-right:20px;
+top:25px;
+right:35px;
 display:flex;
 gap:20px;
-font-size:28px;
+font-size:26px;
 color:white;
 }
 
@@ -84,7 +63,51 @@ color:white;
 cursor:pointer;
 }
 
-/* 抽獎動畫 */
+/ 開始按鈕 /
+
+.start-btn{
+position:absolute;
+top:60%;
+left:50%;
+transform:translate(-50%,-50%);
+width:300px;
+height:90px;
+cursor:pointer;
+}
+
+/ READY 區 /
+
+.ready-panel{
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+text-align:center;
+color:white;
+display:none;
+}
+
+.ready-title{
+font-size:80px;
+letter-spacing:6px;
+}
+
+.ready-sub{
+font-size:36px;
+margin-top:10px;
+}
+
+.draw-btn{
+margin-top:40px;
+font-size:28px;
+padding:15px 40px;
+border:none;
+border-radius:10px;
+background:#f2b63d;
+cursor:pointer;
+}
+
+/ 抽獎動畫 /
 
 .rolling{
 position:absolute;
@@ -101,11 +124,11 @@ color:white;
 }
 
 .rolling-name{
-font-size:90px;
+font-size:120px;
 text-shadow:0 0 40px gold;
 }
 
-/* 得獎 */
+/ 得獎 /
 
 .winner{
 position:absolute;
@@ -122,11 +145,11 @@ color:white;
 }
 
 .winner-name{
-font-size:100px;
+font-size:140px;
 text-shadow:0 0 50px gold;
 }
 
-/* 系統設定 */
+/ 設定 */
 
 .admin{
 position:fixed;
@@ -138,6 +161,7 @@ background:rgba(0,0,0,0.95);
 display:none;
 padding:40px;
 color:white;
+overflow:auto;
 }
 
 textarea,input{
@@ -157,51 +181,62 @@ cursor:pointer;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="stage" id="stage">
 
-<div class="start-btn" onclick="startGame()"></div>
-
-<div class="draw-btn" onclick="startLottery()"></div>
-
 <!-- 左上資訊 -->
 
-<div class="info" id="info">
+<div class="hud" id="hud">
 
-👥 參與人數：0<br>
-🎯 已抽人數：0<br>
-📉 剩餘人數：0
+<div>👥 參與人數：<span id="total">0</span></div>
+<div>🎯 已抽人數：<span id="drawn">0</span></div>
+<div>📉 剩餘人數：<span id="remain">0</span></div>
 
 </div>
 
-<!-- 右上功能 -->
+<!-- 右上 -->
 
 <div class="topbar">
 
 <div onclick="toggleMusic()" id="musicBtn">🔊</div>
-
 <div onclick="openAdmin()">⚙</div>
 
 </div>
 
+<!-- 第一畫面 -->
+
+<div class="start-btn" onclick="startGame()"></div>
+
+<!-- READY 畫面 -->
+
+<div class="ready-panel" id="readyPanel">
+
+<div class="ready-title">READY</div>
+<div class="ready-sub">準備開獎</div>
+
+<button class="draw-btn" onclick="startLottery()">開始抽獎</button>
+
+</div>
+
+<!-- 抽獎 -->
+
 <div class="rolling" id="rolling">
 
-<div style="font-size:32px;margin-bottom:40px">
-抽獎進行中
-</div>
+<div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
 
 <div id="rollingName" class="rolling-name"></div>
 
 </div>
 
+<!-- 得獎 -->
+
 <div class="winner" id="winner" onclick="closeWinner()">
 
-<div style="font-size:30px;margin-bottom:30px">
-🎉 天選之人
-</div>
+<div style="font-size:30px;margin-bottom:30px">🎉 天選之人 🎉</div>
 
 <div id="winnerName" class="winner-name"></div>
 
@@ -209,7 +244,7 @@ cursor:pointer;
 
 </div>
 
-<!-- 系統設定 -->
+<!-- 設定 -->
 
 <div class="admin" id="admin">
 
@@ -241,6 +276,12 @@ const audio=document.getElementById("bgm")
 function startGame(){
 
 document.getElementById("stage").classList.add("ready")
+
+document.querySelector(".start-btn").style.display="none"
+
+document.getElementById("readyPanel").style.display="block"
+
+document.getElementById("hud").style.display="block"
 
 audio.play()
 
@@ -279,21 +320,19 @@ perDraw=parseInt(document.getElementById("perDraw").value)
 total=names.length
 drawn=0
 
-updateInfo()
+updateHud()
 
 document.getElementById("admin").style.display="none"
 
 }
 
-function updateInfo(){
+function updateHud(){
 
 let remain=total-drawn
 
-document.getElementById("info").innerHTML=
-
-`👥 參與人數：${total}<br>
-🎯 已抽人數：${drawn}<br>
-📉 剩餘人數：${remain}`
+document.getElementById("total").innerText=total
+document.getElementById("drawn").innerText=drawn
+document.getElementById("remain").innerText=remain
 
 }
 
@@ -346,7 +385,7 @@ drawn++
 
 }
 
-updateInfo()
+updateHud()
 
 document.getElementById("winnerName").innerText=winners.join("\n")
 
@@ -369,4 +408,3 @@ document.getElementById("winner").style.display="none"
 </script>
 
 </body>
-</html>
