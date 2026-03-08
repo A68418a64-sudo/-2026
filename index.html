@@ -1,4 +1,4 @@
-2"}
+3"}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -33,7 +33,7 @@ background:url("yahu.jpg") center/cover no-repeat;
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/* 左上資訊 /
+/* 左上 HUD /
 
 .hud{
 position:absolute;
@@ -144,17 +144,27 @@ color:white;
 
 .winner-title{
 font-size:36px;
-margin-bottom:30px;
+margin-bottom:40px;
 }
 
+/ 兩欄排版 /
+
 .winner-name{
+
 display:grid;
+
 grid-template-columns:1fr 1fr;
+
 gap:20px 120px;
+
 text-align:center;
+
 font-size:80px;
+
 text-shadow:0 0 40px gold;
+
 max-width:80%;
+
 }
 
 / 系統設定 */
@@ -390,8 +400,6 @@ drawn++
 }
 
 updateHud()
-
-winners=winners.slice(0,20)
 
 let html=""
 
