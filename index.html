@@ -1,4 +1,4 @@
-_2026"}
+2"}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -29,13 +29,11 @@ height:100vh;
 background:url("yahu.jpg") center/cover no-repeat;
 }
 
-/* READY 畫面 /
-
 .stage.ready{
 background:url("ready.jpg") center/cover no-repeat;
 }
 
-/ 左上 HUD /
+/* 左上資訊 /
 
 .hud{
 position:absolute;
@@ -47,7 +45,7 @@ line-height:36px;
 display:none;
 }
 
-/ 右上功能 /
+/ 右上 /
 
 .topbar{
 position:absolute;
@@ -75,7 +73,7 @@ height:90px;
 cursor:pointer;
 }
 
-/ READY 區 /
+/ READY /
 
 .ready-panel{
 position:absolute;
@@ -128,7 +126,7 @@ font-size:120px;
 text-shadow:0 0 40px gold;
 }
 
-/ 得獎 /
+/ 得獎畫面 /
 
 .winner{
 position:absolute;
@@ -144,12 +142,22 @@ flex-direction:column;
 color:white;
 }
 
-.winner-name{
-font-size:140px;
-text-shadow:0 0 50px gold;
+.winner-title{
+font-size:36px;
+margin-bottom:30px;
 }
 
-/ 設定 */
+.winner-name{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:20px 120px;
+text-align:center;
+font-size:80px;
+text-shadow:0 0 40px gold;
+max-width:80%;
+}
+
+/ 系統設定 */
 
 .admin{
 position:fixed;
@@ -188,8 +196,6 @@ cursor:pointer;
 
 <div class="stage" id="stage">
 
-<!-- 左上資訊 -->
-
 <div class="hud" id="hud">
 
 <div>👥 參與人數：<span id="total">0</span></div>
@@ -198,8 +204,6 @@ cursor:pointer;
 
 </div>
 
-<!-- 右上 -->
-
 <div class="topbar">
 
 <div onclick="toggleMusic()" id="musicBtn">🔊</div>
@@ -207,11 +211,7 @@ cursor:pointer;
 
 </div>
 
-<!-- 第一畫面 -->
-
 <div class="start-btn" onclick="startGame()"></div>
-
-<!-- READY 畫面 -->
 
 <div class="ready-panel" id="readyPanel">
 
@@ -222,8 +222,6 @@ cursor:pointer;
 
 </div>
 
-<!-- 抽獎 -->
-
 <div class="rolling" id="rolling">
 
 <div style="font-size:30px;margin-bottom:40px">抽獎進行中</div>
@@ -232,19 +230,15 @@ cursor:pointer;
 
 </div>
 
-<!-- 得獎 -->
-
 <div class="winner" id="winner" onclick="closeWinner()">
 
-<div style="font-size:30px;margin-bottom:30px">🎉 天選之人 🎉</div>
+<div class="winner-title">🎉 天選之人 🎉</div>
 
 <div id="winnerName" class="winner-name"></div>
 
 </div>
 
 </div>
-
-<!-- 設定 -->
 
 <div class="admin" id="admin">
 
@@ -258,6 +252,10 @@ cursor:pointer;
 
 <input id="perDraw" type="number" value="1">
 
+<p>得獎名單字體大小</p>
+
+<input id="fontSize" type="number" value="80">
+
 <button onclick="saveAdmin()">儲存</button>
 
 </div>
@@ -270,6 +268,7 @@ let names=[]
 let total=0
 let drawn=0
 let perDraw=1
+let winnerFontSize=80
 
 const audio=document.getElementById("bgm")
 
@@ -316,6 +315,11 @@ names=document.getElementById("names").value
 .filter(n=>n.trim()!="")
 
 perDraw=parseInt(document.getElementById("perDraw").value)
+
+winnerFontSize=parseInt(document.getElementById("fontSize").value)
+
+document.getElementById("winnerName").style.fontSize =
+winnerFontSize+"px"
 
 total=names.length
 drawn=0
@@ -387,7 +391,17 @@ drawn++
 
 updateHud()
 
-document.getElementById("winnerName").innerText=winners.join("\n")
+winners=winners.slice(0,20)
+
+let html=""
+
+winners.forEach(name=>{
+
+html+="<div>"+name+"</div>"
+
+})
+
+document.getElementById("winnerName").innerHTML=html
 
 document.getElementById("winner").style.display="flex"
 
@@ -408,3 +422,4 @@ document.getElementById("winner").style.display="none"
 </script>
 
 </body>
+</ht
