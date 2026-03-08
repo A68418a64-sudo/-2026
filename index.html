@@ -1,41 +1,30 @@
+}
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>亞護開發 2026 春酒抽獎</title>
-
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <style>
 
 html,body{
 margin:0;
-padding:0;
-width:100%;
 height:100%;
-background:black;
 overflow:hidden;
-font-family:sans-serif;
 }
 
 #stage{
-position:relative;
-width:100vw;
-height:100vh;
+width:100%;
+height:100%;
 background:url("yahu.jpg") center/cover no-repeat;
-transition:0.5s;
+position:relative;
 }
-
-/* 第二畫面 /
 
 .ready{
-background:url("準備.jpg") center/cover no-repeat !important;
+background:url("ready.jpg") center/cover no-repeat !important;
 }
 
-/ 開始遊戲 /
-
-#startBtn{
+#start{
 position:absolute;
 width:30%;
 height:12%;
@@ -45,62 +34,15 @@ transform:translate(-50%,-50%);
 cursor:pointer;
 }
 
-/ 抽獎按鈕 /
-
-#drawBtn{
+#draw{
 position:absolute;
 width:22%;
 height:8%;
 top:76%;
 left:50%;
 transform:translate(-50%,-50%);
+display:none;
 cursor:pointer;
-display:none;
-}
-
-/ 抽獎滾動 /
-
-#rolling{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.92);
-display:none;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-}
-
-#rollingName{
-font-size:90px;
-color:white;
-font-weight:bold;
-text-shadow:0 0 40px gold;
-}
-
-/ 得獎 /
-
-#winner{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,0.9);
-display:none;
-align-items:center;
-justify-content:center;
-flex-direction:column;
-}
-
-#winnerName{
-font-size:100px;
-color:white;
-font-weight:bold;
-text-shadow:0 0 50px gold;
-text-align:center;
 }
 
 </style>
@@ -110,126 +52,29 @@ text-align:center;
 
 <div id="stage">
 
-<div id="startBtn"></div>
+<div id="start"></div>
 
-<div id="drawBtn"></div>
-
-<div id="rolling">
-<div style="color:gold;font-size:30px;margin-bottom:40px;">抽獎進行中</div>
-<div id="rollingName"></div>
-</div>
-
-<div id="winner">
-<div style="color:gold;font-size:30px;margin-bottom:20px;">天選之人</div>
-<div id="winnerName"></div>
-<div style="color:#aaa;margin-top:40px;">點擊畫面繼續</div>
-</div>
+<div id="draw"></div>
 
 </div>
-
-<audio id="bgm" src="music.m4a" loop></audio>
 
 <script>
 
-let names=[
-"王小明",
-"陳小華",
-"林志強",
-"張雅婷",
-"李佳玲",
-"黃建宏",
-"劉德華"
-]
-
-let rolling=false
-let timer
-
 const stage=document.getElementById("stage")
-const startBtn=document.getElementById("startBtn")
-const drawBtn=document.getElementById("drawBtn")
-const rollingUI=document.getElementById("rolling")
-const rollingName=document.getElementById("rollingName")
-const winnerUI=document.getElementById("winner")
-const winnerName=document.getElementById("winnerName")
-const audio=document.getElementById("bgm")
+const start=document.getElementById("start")
+const draw=document.getElementById("draw")
 
-/ 第一畫面 → 第二畫面 /
-
-startBtn.onclick=function(){
+start.onclick=function(){
 
 stage.classList.add("ready")
 
-startBtn.style.display="none"
+start.style.display="none"
 
-drawBtn.style.display="block"
-
-audio.play()
-
-}
-
-/ 開始抽獎 */
-
-drawBtn.onclick=function(){
-
-if(rolling)return
-
-rolling=true
-
-rollingUI.style.display="flex"
-
-timer=setInterval(()=>{
-
-let name=names[Math.floor(Math.random()names.length)]
-
-rollingName.innerText=name
-
-},60)
-
-setTimeout(()=>{
-
-clearInterval(timer)
-
-rolling=false
-
-showWinner()
-
-},5000)
-
-}
-
-/ 顯示得獎 */
-
-function showWinner(){
-
-rollingUI.style.display="none"
-
-let index=Math.floor(Math.random()names.length)
-
-let win=names.splice(index,1)[0]
-
-winnerName.innerText=win
-
-winnerUI.style.display="flex"
-
-confetti({
-particleCount:200,
-spread:100,
-origin:{y:0.6}
-})
-
-}
-
-/ 點擊繼續 */
-
-winnerUI.onclick=function(){
-
-winnerUI.style.display="none"
-
-rollingName.innerText=""
+draw.style.display="block"
 
 }
 
 </script>
 
 </body>
-</html>
+</html
